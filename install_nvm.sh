@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -138,7 +138,6 @@ function main() {
 
         # Install Latest NodeJS
         nvm install node
-        npm i -g cnpm
 
         echo "===================== NVM 安装配置完成 ===================="
     exit
@@ -169,3 +168,7 @@ else
     echo "NVM 安装被取消，未作任何更改..."
     echo ""
 fi
+
+
+# v1.0.1
+# - 移除默认安装的 cnpm，因为用 cnpm 安装依赖后会导致依赖无法更新

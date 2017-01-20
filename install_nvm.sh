@@ -12,8 +12,8 @@ Current_User="root"
 # 以下变量涉及 rm -rf，乱来你就死定了，路径最后不要加上斜杠 /
 # NodeJS 安装目录（绝对路径），使用 yum 安装或未曾安装过留空
 Installed_NodeJS_Path=""
-# NPM 安装缓存目录（绝对路径），默认为 `~/.npm`，多个用空格隔开，不删除则留空
-NPM_Cache_Path="~/.npm ~/.npminstall_tarball ~/.pki" # 普通用户，可用 ~
+# NPM 安装缓存目录（绝对路径），默认为 `~/.npm`，可用空格隔开，不删除则留空
+NPM_Cache_Path="~/.npm" # 普通用户，可用 ~
 # NPM 全局安装路径，默认为 `/usr/lib/node_modules` 或 `/usr/local/lib/node_modules`，可用空格隔开，不删除则留空
 NPM_Global_Path="/usr/lib/node_modules /usr/local/lib/node_modules"
 # NPM 可执行文件路径，默认为 `/usr/bin` 或 `/usr/local/bin`，可用空格隔开，不删除则留空，会删除全部失效软链接
@@ -169,6 +169,8 @@ else
     echo ""
 fi
 
-
-# v1.0.1
+# Ver1.0.2
+# - 移除 cnpm 的部分配置文件和缓存
+#
+# Ver1.0.1
 # - 移除默认安装的 cnpm，因为用 cnpm 安装依赖后会导致依赖无法更新

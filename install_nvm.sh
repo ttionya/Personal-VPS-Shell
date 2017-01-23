@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.3
 # Author: ttionya
 
 
@@ -106,8 +106,15 @@ function main() {
             if [ -n "$Find_NVM_Mirror" ]; then
                 sed -i 's/^export NVM_NODEJS_ORG_MIRROR\(.*\)/# export NVM_NODEJS_ORG_MIRROR\1/' ~/.bashrc
             fi
+            echo "export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node" >> ~/.bashrc
         fi
-        echo "export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node" >> ~/.bashrc
+        if [ -f ~/.zshrc ]; then
+            Find_NVM_Mirror=`cat ~/.zshrc | grep -oE "^(# )?export NVM_NODEJS_ORG_MIRROR(.*)$"`
+            if [ -n "$Find_NVM_Mirror" ]; then
+                sed -i 's/^export NVM_NODEJS_ORG_MIRROR\(.*\)/# export NVM_NODEJS_ORG_MIRROR\1/' ~/.zshrc
+            fi
+            echo "export NVM_NODEJS_ORG_MIRROR=https://npm.taobao.org/mirrors/node" >> ~/.zshrc
+        fi
         echo ""
         echo "已将淘宝源作为 NVM 源"
 
@@ -168,6 +175,9 @@ else
     echo "NVM 安装被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.3
+# - 添加 Zsh 的支持
 
 # Ver1.0.2
 # - 移除 cnpm 的部分配置文件和缓存

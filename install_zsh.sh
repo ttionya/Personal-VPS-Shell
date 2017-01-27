@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -102,6 +102,16 @@ bindkey -s "^[Om" "-"
 bindkey -s "^[Oj" "*"
 bindkey -s "^[Oo" "/"
 EOF
+
+            # Fix Home / End key
+            # https://github.com/robbyrussell/oh-my-zsh/issues/3061
+            cat >> ~/.zshrc << EOF
+
+# Fix Home / End key
+bindkey "\033[1~" beginning-of-line
+bindkey "\033[4~" end-of-line
+EOF
+
             source ~/.zshrc
         fi
 
@@ -140,3 +150,6 @@ fi
 
 # Ver1.0.1
 # - 修复小键盘可能失效的问题
+#
+# Ver1.0.2
+# - 修复 Home 和 End 键不正常工作的问题

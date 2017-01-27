@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -61,7 +61,7 @@ function main() {
     esac
 
     # Switch User
-    su - $Current_User <<HERE
+    su - $Current_User << HERE
 
         # Install Oh My Zsh
         echo ""
@@ -79,6 +79,29 @@ function main() {
         if [ -f ~/.zshrc ]; then
             sed -i 's/^ZSH_THEME=.*/ZSH_THEME="$Zsh_Theme"/' ~/.zshrc
             sed -i 's/^plugins=.*/plugins=($Zsh_Plugins)/' ~/.zshrc
+
+            # Fix numeric keypad
+            # https://github.com/robbyrussell/oh-my-zsh/issues/2654
+            cat >> ~/.zshrc << EOF
+
+# Fix numeric keypad
+bindkey -s "^[Op" "0"
+bindkey -s "^[On" "."
+bindkey -s "^[OM" "^M"
+bindkey -s "^[Oq" "1"
+bindkey -s "^[Or" "2"
+bindkey -s "^[Os" "3"
+bindkey -s "^[Ot" "4"
+bindkey -s "^[Ou" "5"
+bindkey -s "^[Ov" "6"
+bindkey -s "^[Ow" "7"
+bindkey -s "^[Ox" "8"
+bindkey -s "^[Oy" "9"
+bindkey -s "^[Ol" "+"
+bindkey -s "^[Om" "-"
+bindkey -s "^[Oj" "*"
+bindkey -s "^[Oo" "/"
+EOF
             source ~/.zshrc
         fi
 
@@ -114,3 +137,6 @@ fi
 
 # 删除 oh-my-zsh
 # uninstall_oh_my_zsh
+
+# Ver1.0.1
+# - 修复小键盘可能失效的问题

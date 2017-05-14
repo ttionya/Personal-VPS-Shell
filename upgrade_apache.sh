@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -114,11 +114,6 @@ function update_apache() {
             exit 1
         fi
         
-        # Link
-        if [ `getconf WORD_BIT` = '32' ] && [ `getconf LONG_BIT` = '64' ] ; then
-            ln -s /usr/local/pcre/lib /usr/local/pcre/lib64
-        fi
-        
         # Clean Up Old Files
         rm -rf /usr/local/src/pcre-$Installed_PCRE_Ver/
         rm -f /usr/local/src/pcre-$Installed_PCRE_Ver.tar.gz
@@ -193,13 +188,7 @@ function update_apache() {
     --with-mpm=prefork \
     --with-included-apr \
     --enable-so \
-    --enable-dav \
-    --enable-deflate=shared \
-    --enable-ssl=shared \
-    --enable-expires=shared \
-    --enable-headers=shared \
-    --enable-rewrite=shared \
-    --enable-static-support \
+    --enable-ssl \
     --enable-modules=all \
     --enable-mods-shared=all
     if [ $? != 0 ]; then
@@ -274,3 +263,6 @@ else
     echo "Apache 升级被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# - 修改编译选项，移除不必要语句

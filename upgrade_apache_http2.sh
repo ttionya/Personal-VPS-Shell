@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -75,9 +75,10 @@ Latest_OpenSSL_Ver=`curl --retry 3 -s https://www.openssl.org/source/ | grep -oE
 Latest_nghttp2_Ver=`curl --retry 3 -s https://github.com/nghttp2/nghttp2/releases | grep "css-truncate-target" | head -n 1 | grep -oE "v[0-9.]+" | sed "s/^.\(.*\)$/\1/"`
 
 # Check APR/APR-util Version
-Latest_APRs_Url=`curl --retry 3 -s http://apr.apache.org/download.cgi | grep -oE "http[s]?://.*//apr/apr-[^\"]*.tar.gz" | head -n 2 | tr "\n" "|"`
-Latest_APR_Url=`echo $Latest_APRs_Url | awk -F"|" '{print $1}'`
-Latest_APR_Util_Url=`echo $Latest_APRs_Url | awk -F"|" '{print $2}'`
+APRs_Url=`curl --retry 3 -s https://www.apache.org/dyn/closer.cgi | grep -oE "<strong>[^<]*</strong>" | head -n 1 | sed "s@<strong>\(.*\)</strong>@\1@g"`/apr/
+APRs_Content=`curl --retry 3 -s $APRs_Url`
+Latest_APR_Url=$APRs_Url`echo $APRs_Content | grep -oP "apr-1.[6-9][^\"]*.tar.gz" | tail -n 1`
+Latest_APR_Util_Url=$APRs_Url`echo $APRs_Content | grep -oP "apr-util-1.[6-9][^\"]*.tar.gz" | tail -n 1`
 Latest_APR_Ver=`echo $Latest_APR_Url | grep -oE "([0-9].)*[0-9]"`
 Latest_APR_Util_Ver=`echo $Latest_APR_Util_Url | grep -oE "([0-9].)*[0-9]"`
 
@@ -397,3 +398,6 @@ else
     echo "Apache 升级被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# - 修复某些地区的 apr.apache.org/download.cgi 改版引起的问题

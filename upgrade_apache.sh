@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -51,9 +51,10 @@ Installed_PCRE_Ver=`$Installed_PCRE_Path/bin/pcre-config --version`
 Latest_PCRE_Ver=`curl --retry 3 -s https://sourceforge.net/projects/pcre/files/pcre/ | grep "Click to enter" | head -n 1 | awk -F" " '{print $4}' | tr -d "\""`
 
 # Check APR/APR-util Version
-Latest_APRs_Url=`curl --retry 3 -s http://apr.apache.org/download.cgi | grep -oE "http[s]?://.*//apr/apr-[^\"]*.tar.gz" | head -n 2 | tr "\n" "|"`
-Latest_APR_Url=`echo $Latest_APRs_Url | awk -F"|" '{print $1}'`
-Latest_APR_Util_Url=`echo $Latest_APRs_Url | awk -F"|" '{print $2}'`
+APRs_Url=`curl --retry 3 -s https://www.apache.org/dyn/closer.cgi | grep -oE "<strong>[^<]*</strong>" | head -n 1 | sed "s@<strong>\(.*\)</strong>@\1@g"`/apr/
+APRs_Content=`curl --retry 3 -s $APRs_Url`
+Latest_APR_Url=$APRs_Url`echo $APRs_Content | grep -oP "apr-1.[6-9][^\"]*.tar.gz" | tail -n 1`
+Latest_APR_Util_Url=$APRs_Url`echo $APRs_Content | grep -oP "apr-util-1.[6-9][^\"]*.tar.gz" | tail -n 1`
 Latest_APR_Ver=`echo $Latest_APR_Url | grep -oE "([0-9].)*[0-9]"`
 Latest_APR_Util_Ver=`echo $Latest_APR_Util_Url | grep -oE "([0-9].)*[0-9]"`
 
@@ -266,3 +267,6 @@ fi
 
 # Ver1.0.1
 # - 修改编译选项，移除不必要语句
+#
+# Ver1.0.2
+# - 修复某些地区的 apr.apache.org/download.cgi 改版引起的问题

@@ -18,3 +18,7 @@
 
 #### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
 - 暂时只支持 yum, apt, zypper, pacman 包管理器
+
+#### [upgrade_kernel](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
+- 升级 CentOS 7 的内核到 ElRepo 最新内核
+- 请勿在生产环境使用

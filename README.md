@@ -25,5 +25,6 @@
 - 已将软件源设为阿里巴巴，歪果仁慎用
 
 #### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
-- 升级 CentOS 7 的内核到 ElRepo 最新内核
+- 仅支持 CentOS 7
+- 已将软件源设为清华大学，歪果仁慎用
 - **请勿在生产环境使用**

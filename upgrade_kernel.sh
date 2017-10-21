@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -65,7 +65,7 @@ function main() {
 }
 
 
-# Show Install Information
+# Show Upgrade Information
 clear
 echo "##########################################################"
 echo "# Upgrade CentOS 7.X Kernel                              #"
@@ -75,16 +75,19 @@ echo ""
 echo "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
 echo ""
 echo "继续升级内核？ (y/n)"
-read -p "(Default: n):" Check_Install
-if [ -z $Check_Install ]; then
-    Check_Install="n"
+read -p "(Default: n):" Check_Update
+if [ -z $Check_Update ]; then
+    Check_Update="n"
 fi
 
-# Check Install
-if [[ $Check_Install == y || $Check_Install == Y ]]; then
+# Check Update
+if [[ $Check_Update == y || $Check_Update == Y ]]; then
     main
 else
     echo ""
     echo "内核升级被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# - 修改脚本内容

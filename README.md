@@ -2,9 +2,6 @@
 
 ### **自用服务器脚本**
 
-#### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)
-- 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
-
 #### [upgrade_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache_http2.sh)
 - 支持 CentOS 6.X / CentOS 7.X、Apache 2.4、PCRE 1、OpenSSL 1.0.2、nghttp2
 
@@ -28,3 +25,6 @@
 - 仅支持 CentOS 7
 - 已将软件源设为清华大学，歪果仁慎用
 - **请勿在生产环境使用**
+
+#### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
+- 仅支持 CentOS 6.X、Apache 2.4、PCRE 1

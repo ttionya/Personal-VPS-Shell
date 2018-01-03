@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -47,8 +47,13 @@ function main() {
     yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs
 
     # 设置启动项
-    sed -i 's@^GRUB_DEFAULT=\(.*\)@GRUB_DEFAULT=0@' /etc/default/grub
-    grub2-mkconfig -o /boot/grub2/grub.cfg
+    grubDefault=`cat /etc/default/grub | grep GRUB_DEFAULT | awk -F "=" '{print $2}'`
+    if [[ $grubDefault == saved ]]; then
+        cat /boot/grub2/grub.cfg | grep -P "^menuentry" | awk -F "'" '{print $2}' | head -n 1 | xargs -I {} grub2-set-default {}
+    else
+        sed -i 's@^GRUB_DEFAULT=\(.*\)@GRUB_DEFAULT=0@' /etc/default/grub
+        grub2-mkconfig -o /boot/grub2/grub.cfg
+    fi
 
     echo "===================== 内核安装完成，5秒后自动重启 ===================="
     echo "5"
@@ -91,3 +96,6 @@ fi
 
 # Ver1.0.1
 # - 修改脚本内容
+#
+# Ver1.0.2
+# - 修复某些 VPS 上升级内核导致无法开机的问题

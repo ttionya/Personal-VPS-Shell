@@ -23,7 +23,7 @@
 
 #### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
 - 仅支持 CentOS 7
-- 已将软件源设为清华大学，歪果仁慎用
+- 已将软件源设为清华大学
 - **请勿在生产环境使用**
 
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）

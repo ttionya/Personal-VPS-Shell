@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.1.1
 # Author: ttionya
 
 
@@ -153,6 +153,9 @@ else
     check_upgrade_kernel
 fi
 
+# Ver1.1.1
+# - 命名脚本版本
+#
 # Ver1.1.0
 # - 优化升级脚本
 #

@@ -29,21 +29,57 @@ if [ $CentOS_Ver != 7 ]; then
 fi
 ################### Check Info End ####################
 
-
-# Main Function
-function main() {
+# Install Elrepo Function
+function install_elrepo() {
     echo ""
-    echo "===================== 开始升级内核 ===================="
+    echo "===================== 开始安装 Elrepo ===================="
 
-    # 安装 ElRepo
     rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
     rpm -Uvh --force http://www.elrepo.org/elrepo-release-$ElRepo_Ver.el7.elrepo.noarch.rpm
+    if [ $? != 0 ]; then
+        echo "Elrepo 安装失败"
+        exit 1
+    fi
+
     sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
     sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
     sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
+}
+
+# Check Install Elrepo Function
+function check_install_elrepo() {
+    # Show Install Information
+    clear
+    echo "##########################################################"
+    echo "# Install CentOS 7.X Elrepo Repository                   #"
+    echo "# Author: ttionya                                        #"
+    echo "##########################################################"
+    echo ""
+    echo "升级内核需要安装 elrepo 仓库"
+    echo ""
+    echo "安装 elrepo 仓库？ (y/n)"
+    read -p "(Default: n):" Check_Install
+    if [ -z $Check_Install ]; then
+        Check_Install="n"
+    fi
+
+    # Check Install
+    if [[ $Check_Install == y || $Check_Install == Y ]]; then
+        install_elrepo
+    else
+        echo ""
+        echo "内核升级被取消，未作任何更改..."
+        echo ""
+    fi
+}
+
+# Upgrade Kernel Function
+function upgrade_kernel() {
+    echo ""
+    echo "===================== 开始升级内核 ===================="
 
     # 移除旧内核
-    rpm -e --nodeps kernel-ml-devel kernel-headers kernel-tools kernel-tools-libs
+    rpm -e --nodeps kernel-ml kernel-ml-devel kernel-headers kernel-tools kernel-tools-libs
     yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs
 
     # 设置启动项
@@ -55,45 +91,71 @@ function main() {
         grub2-mkconfig -o /boot/grub2/grub.cfg
     fi
 
-    echo "===================== 内核安装完成，5秒后自动重启 ===================="
-    echo "5"
-    sleep 1
-    echo "4"
-    sleep 1
-    echo "3"
-    sleep 1
-    echo "2"
-    sleep 1
-    echo "1"
-    sleep 1
-    reboot
+    echo "===================== 内核安装完成，按 Y 立即重启 ===================="
+    read -p "(Default: n):" Check_Reboot
+    if [ -z $Check_Reboot ]; then
+        Check_Reboot="n"
+    fi
+
+    # Check Update
+    if [[ $Check_Reboot == y || $Check_Reboot == Y ]]; then
+        reboot
+    else
+        echo ""
+        echo "请手动重启系统"
+        echo ""
+    fi
 }
 
+# Check Upgrade Kernel Function
+function check_upgrade_kernel() {
+    yum clean all
+    yum makecache fast
 
-# Show Upgrade Information
-clear
-echo "##########################################################"
-echo "# Upgrade CentOS 7.X Kernel                              #"
-echo "# Author: ttionya                                        #"
-echo "##########################################################"
-echo ""
-echo "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
-echo ""
-echo "继续升级内核？ (y/n)"
-read -p "(Default: n):" Check_Update
-if [ -z $Check_Update ]; then
-    Check_Update="n"
-fi
+    # Check Current Kernel Version
+    Current_Kernel_Version=`uname -r`
+    Newest_Kernel_version=`yum --enablerepo=elrepo-kernel list | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
 
-# Check Update
-if [[ $Check_Update == y || $Check_Update == Y ]]; then
-    main
+    # Show Upgrade Information
+    clear
+    echo "##########################################################"
+    echo "# Upgrade CentOS 7.X Kernel"
+    echo "# Author: ttionya"
+    echo -e "# Current Kernel: \E[1;33m$Current_Kernel_Version\E[0m"
+    echo -e "# Newest Kernel: \E[1;33m$Newest_Kernel_version\E[0m"
+    echo "##########################################################"
+    echo ""
+    echo "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
+    echo ""
+    echo "继续升级内核？ (y/n)"
+    read -p "(Default: n):" Check_Update
+    if [ -z $Check_Update ]; then
+        Check_Update="n"
+    fi
+
+    # Check Update
+    if [[ $Check_Update == y || $Check_Update == Y ]]; then
+        upgrade_kernel
+    else
+        echo ""
+        echo "内核升级被取消，未作任何更改..."
+        echo ""
+    fi
+}
+
+# Check Elrepo
+Is_Installed_Elrepo=`yum list installed | grep elrepo-release | wc -l`
+
+if [[ $Is_Installed_Elrepo == 1 ]]; then
+    check_upgrade_kernel
 else
-    echo ""
-    echo "内核升级被取消，未作任何更改..."
-    echo ""
+    check_install_elrepo
+    check_upgrade_kernel
 fi
 
+# Ver1.1.0
+# - 优化升级脚本
+#
 # Ver1.0.1
 # - 修改脚本内容
 #

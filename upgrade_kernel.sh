@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.1.2
+# Version: 1.1.3
 # Author: ttionya
 
 
@@ -79,7 +79,10 @@ function upgrade_kernel() {
     echo "===================== 开始升级内核 ===================="
 
     # 移除旧内核
-    rpm -e --nodeps kernel-ml kernel-ml-devel kernel-headers kernel-tools kernel-tools-libs
+    rpm -e --nodeps kernel-headers kernel-tools kernel-tools-libs
+    rpm -qa | grep kernel-ml | grep -v `uname -r` | xargs -I {} yum remove -y {}
+
+    # 安装
     yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs
 
     # 设置启动项
@@ -114,7 +117,15 @@ function check_upgrade_kernel() {
 
     # Check Current Kernel Version
     Current_Kernel_Version=`uname -r`
-    Newest_Kernel_version=`yum --enablerepo=elrepo-kernel list | grep -P '[^@]elrepo-kernel' | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
+    Newest_Kernel_Version=`yum --enablerepo=elrepo-kernel list | grep -P '[^@]elrepo-kernel' | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
+
+    # 最新版无需升级
+    if [ -z $Newest_Kernel_Version ]; then
+        echo ""
+        echo -e "\E[1;33m您的内核 $Current_Kernel_Version 已是最新版，无需升级\E[0m"
+        echo ""
+        exit 0
+    fi
 
     # Show Upgrade Information
     clear
@@ -122,7 +133,7 @@ function check_upgrade_kernel() {
     echo "# Upgrade CentOS 7.X Kernel"
     echo "# Author: ttionya"
     echo -e "# Current Kernel: \E[1;33m$Current_Kernel_Version\E[0m"
-    echo -e "# Newest Kernel: \E[1;33m$Newest_Kernel_version\E[0m"
+    echo -e "# Newest Kernel: \E[1;33m$Newest_Kernel_Version\E[0m"
     echo "##########################################################"
     echo ""
     echo "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
@@ -153,6 +164,10 @@ else
     check_upgrade_kernel
 fi
 
+# Ver1.1.3
+# - 最新版本不会执行升级操作
+# - 优化旧版本删除逻辑
+#
 # Ver1.1.2
 # - 优化获取最新版 kernel-ml 版本方式
 #

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.1.1
+# Version: 1.1.2
 # Author: ttionya
 
 
@@ -114,7 +114,7 @@ function check_upgrade_kernel() {
 
     # Check Current Kernel Version
     Current_Kernel_Version=`uname -r`
-    Newest_Kernel_version=`yum --enablerepo=elrepo-kernel list | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
+    Newest_Kernel_version=`yum --enablerepo=elrepo-kernel list | grep -P '[^@]elrepo-kernel' | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
 
     # Show Upgrade Information
     clear
@@ -153,6 +153,9 @@ else
     check_upgrade_kernel
 fi
 
+# Ver1.1.2
+# - 优化获取最新版 kernel-ml 版本方式
+#
 # Ver1.1.1
 # - 命名脚本版本
 #

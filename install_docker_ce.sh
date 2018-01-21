@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 # https://docs.docker.com/engine/installation/linux/docker-ce/centos/
 
+
+################### Custom Setting ####################
+# Docker 用户，不存在会自动创建
+Docker_User="docker"
 
 ################### Check Info Start ####################
 # Check root User
@@ -48,10 +52,22 @@ function main() {
     yum makecache fast
     yum install -y docker-ce
 
+    # Create User And Group
+    groupadd -f docker
+    if id -u $Docker_User > /dev/null 2>&1; then
+        if [ `id -u $Docker_User` != 0 ]; then
+            usermod -aG docker $Docker_User
+        fi
+    else
+        useradd -g docker -s /bin/bash $Docker_User
+    fi
+
     # Auto Run
     systemctl enable docker
     systemctl start docker
     echo "===================== Docker CE 安装配置完成 ===================="
+    echo ""
+    echo -e "\E[1;33m如有问题，请重启\E[0m"
 }
 
 
@@ -78,3 +94,6 @@ else
     echo "Docker CE 安装被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# 自动添加 docker 组和用户

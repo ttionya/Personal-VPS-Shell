@@ -9,9 +9,9 @@
 - 仅支持 CentOS 6.X、PHP 7.0.X / PHP 7.1.X、Apache 2.4、PCRE 1
 
 #### [install_nvm.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_nvm.sh)
-- 理论支持全部 CentOS 版本，但仅在 CentOS 6.8 下进行过测试
+- 支持 RH / CentOS 6.X / 7.X
 - 涉及 `rm -rf` 命令，操作务必小心
-- 已将软件源设为淘宝，歪果仁慎用
+- 已将软件源设为淘宝
 
 #### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
 - 暂时只支持 yum, apt, zypper, pacman 包管理器
@@ -19,7 +19,7 @@
 #### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
 - 仅支持 CentOS 7
 - 低版本内核使用 Device Mapper，高版本内核使用 Overlay2
-- 已将软件源设为阿里巴巴，歪果仁慎用
+- 已将软件源设为阿里巴巴
 
 #### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
 - 仅支持 CentOS 7

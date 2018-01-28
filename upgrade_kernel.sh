@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Version: 1.1.3
+# Version: 1.2.0
 # Author: ttionya
 
 
 ################### Customer Setting ####################
 # elrepo 版本
 ElRepo_Ver="7.0-3"
+# 中国服务器
+In_China=0
 
 ################### Check Info Start ####################
 # Check root User
@@ -41,9 +43,12 @@ function install_elrepo() {
         exit 1
     fi
 
-    sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
-    sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
-    sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
+    # China
+    if [[ $In_China == 1 ]]; then
+        sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
+        sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
+        sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
+    fi
 }
 
 # Check Install Elrepo Function
@@ -164,21 +169,24 @@ else
     check_upgrade_kernel
 fi
 
-# Ver1.1.3
-# - 最新版本不会执行升级操作
-# - 优化旧版本删除逻辑
-#
-# Ver1.1.2
-# - 优化获取最新版 kernel-ml 版本方式
-#
-# Ver1.1.1
-# - 命名脚本版本
-#
-# Ver1.1.0
-# - 优化升级脚本
-#
 # Ver1.0.1
 # - 修改脚本内容
 #
 # Ver1.0.2
 # - 修复某些 VPS 上升级内核导致无法开机的问题
+#
+# Ver1.1.0
+# - 优化升级脚本
+#
+# Ver1.1.1
+# - 命名脚本版本
+#
+# Ver1.1.2
+# - 优化获取最新版 kernel-ml 版本方式
+#
+# Ver1.1.3
+# - 最新版本不会执行升级操作
+# - 优化旧版本删除逻辑
+#
+# Ver1.2.0
+# - 支持设定服务器地址，设置为国内则自动将 ElRepo 设置为清华源

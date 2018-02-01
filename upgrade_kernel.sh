@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.2.0
+# Version: 1.2.1
 # Author: ttionya
 
 
@@ -84,7 +84,9 @@ function upgrade_kernel() {
     echo "===================== 开始升级内核 ===================="
 
     # 移除旧内核
-    rpm -e --nodeps kernel-headers kernel-tools kernel-tools-libs
+    rpm -e --nodeps kernel-headers
+    rpm -e --nodeps kernel-tools
+    rpm -e --nodeps kernel-tools-libs
     rpm -qa | grep kernel-ml | grep -v `uname -r` | xargs -I {} yum remove -y {}
 
     # 安装
@@ -190,3 +192,6 @@ fi
 #
 # Ver1.2.0
 # - 支持设定服务器地址，设置为国内则自动将 ElRepo 设置为清华源
+#
+# Ver1.2.1
+# - 修复 kernel-header 未安装时导致升级失败的问题

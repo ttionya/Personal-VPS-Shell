@@ -19,6 +19,8 @@
 #### [install_python3.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_python3.sh)
 - 仅支持 RH / CentOS 7.X
 
+#### [install_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_git.sh)
+
 #### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
 - 仅支持 CentOS 7
 - 低版本内核使用 Device Mapper，高版本内核使用 Overlay2

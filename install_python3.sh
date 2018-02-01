@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -41,11 +41,11 @@ function main() {
     echo "===================== Python 3 安装程序 启动 ===================="
 
     # Install Dependencies
-    yum -y install gcc gcc-c++ sqlite-devel
+    yum -y install gcc gcc-c++ sqlite-devel zlib zlib-devel
 
     cd /usr/local/src
     if [ ! -s Python-$Latest_Python3_Ver.tgz ]; then
-        wget -c -t3 -T60 "https://www.python.org/ftp/python/$Latest_Python3_Ver/Python-$Latest_Python3_Ver.tgz" -O Python-$Latest_Python3_Ver.tgz
+        wget -c -t3 -T60 "https://npm.taobao.org/mirrors/python/$Latest_Python3_Ver/Python-$Latest_Python3_Ver.tgz" -O Python-$Latest_Python3_Ver.tgz
         if [ $? != 0 ]; then
             rm -rf Python-$Latest_Python3_Ver.tgz
             echo "Python 3 下载失败"
@@ -104,3 +104,7 @@ else
     echo "Python $Latest_Python3_Ver 安装被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# - 将下载源更改为淘宝源
+# - 添加依赖库

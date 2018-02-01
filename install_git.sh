@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -41,7 +41,7 @@ function main() {
     echo "===================== Git 安装程序 启动 ===================="
 
     # Install Dependencies
-    yum -y install autoconf gcc gcc-c++ perl-ExtUtils-MakeMaker zlib zlib-devel
+    yum -y install autoconf curl-devel expat-devel gettext-devel gcc gcc-c++ perl-ExtUtils-MakeMaker zlib zlib-devel
 
     cd /usr/local/src
     if [ ! -s git-v$Latest_Git_Ver.tar.gz ]; then
@@ -104,3 +104,6 @@ else
     echo "Git $Latest_Git_Ver 安装被取消，未作任何更改..."
     echo ""
 fi
+
+# Ver1.0.1
+# - 添加遗漏的依赖项

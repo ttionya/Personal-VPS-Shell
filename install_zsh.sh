@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.0.3
 # Author: ttionya
 
 
@@ -78,7 +78,10 @@ function main() {
         # Setting ~/.zshrc
         if [ -f ~/.zshrc ]; then
             sed -i 's/^ZSH_THEME=.*/ZSH_THEME="$Zsh_Theme"/' ~/.zshrc
-            sed -i 's/^plugins=.*/plugins=($Zsh_Plugins)/' ~/.zshrc
+            sed -i -e '/^plugins=[[:space:]]*(/,/^)/s/.*/plugins=($Zsh_Plugins)/p' ~/.zshrc
+            mv ~/.zshrc ~/.zshrc.bak
+            cat ~/.zshrc.bak | uniq > ~/.zshrc
+            rm -f ~/.zshrc.bak # mmp
 
             # Fix numeric keypad
             # https://github.com/robbyrussell/oh-my-zsh/issues/2654
@@ -111,8 +114,6 @@ EOF
 bindkey "\033[1~" beginning-of-line
 bindkey "\033[4~" end-of-line
 EOF
-
-            source ~/.zshrc
         fi
 
         echo "===================== Oh My Zsh 安装配置完成 ===================="
@@ -153,3 +154,7 @@ fi
 #
 # Ver1.0.2
 # - 修复 Home 和 End 键不正常工作的问题
+#
+# Ver1.0.3
+# - 移除多余的 source 命令
+# - 使用丑陋的方法处理 plugins 问题

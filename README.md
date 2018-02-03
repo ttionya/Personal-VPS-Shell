@@ -2,6 +2,9 @@
 
 ### **自用服务器脚本**
 
+#### [install_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_apache_http2.sh)
+- 支持 CentOS 7.X、Apache 2.4、PCRE 1、OpenSSL 1.0.2、nghttp2
+
 #### [upgrade_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache_http2.sh)
 - 支持 CentOS 6.X / CentOS 7.X、Apache 2.4、PCRE 1、OpenSSL 1.0.2、nghttp2
 

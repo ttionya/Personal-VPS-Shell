@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -336,10 +336,12 @@ function install_apache() {
     # Set httpd Config File
     cp -f $Install_Apache_Path/conf/httpd.conf $Install_Apache_Path/conf/httpd.conf.bak
     sed -i 's@^#LoadModule\(.*\)mod_socache_shmcb.so@LoadModule\1mod_socache_shmcb.so@' $Install_Apache_Path/conf/httpd.conf # HTTPS
-    sed -i 's@^#LoadModule\(.*\)mod_deflate.so@LoadModule\1mod_deflate.so@' $Install_Apache_Path/conf/httpd.conf # GZIP
-    sed -i 's@^#LoadModule\(.*\)mod_expires.so@LoadModule\1mod_expires.so@' $Install_Apache_Path/conf/httpd.conf
-    sed -i 's@^#LoadModule\(.*\)mod_headers.so@LoadModule\1mod_headers.so@' $Install_Apache_Path/conf/httpd.conf # GZIP
-    sed -i 's@^#LoadModule\(.*\)mod_proxy.so@LoadModule\1mod_proxy.so@' $Install_Apache_Path/conf/httpd.conf # PHP-FPM
+    sed -i 's@^#LoadModule\(.*\)mod_deflate.so@LoadModule\1mod_deflate.so@' $Install_Apache_Path/conf/httpd.conf # GZip
+    sed -i 's@^#LoadModule\(.*\)mod_expires.so@LoadModule\1mod_expires.so@' $Install_Apache_Path/conf/httpd.conf # Cache
+    sed -i 's@^#LoadModule\(.*\)mod_headers.so@LoadModule\1mod_headers.so@' $Install_Apache_Path/conf/httpd.conf # GZip
+    sed -i 's@^#LoadModule\(.*\)mod_remoteip.so@LoadModule\1mod_remoteip.so@' $Install_Apache_Path/conf/httpd.conf # Proxy
+    sed -i 's@^#LoadModule\(.*\)mod_proxy.so@LoadModule\1mod_proxy.so@' $Install_Apache_Path/conf/httpd.conf # PHP-FPM / Proxy
+    sed -i 's@^#LoadModule\(.*\)mod_proxy_http.so@LoadModule\1mod_proxy_http.so@' $Install_Apache_Path/conf/httpd.conf # Proxy
     sed -i 's@^#LoadModule\(.*\)mod_proxy_fcgi.so@LoadModule\1mod_proxy_fcgi.so@' $Install_Apache_Path/conf/httpd.conf # PHP-FPM
     sed -i 's@^#LoadModule\(.*\)mod_ssl.so@LoadModule\1mod_ssl.so@' $Install_Apache_Path/conf/httpd.conf # HTTPS
     sed -i 's@^#LoadModule\(.*\)mod_http2.so@LoadModule\1mod_http2.so@' $Install_Apache_Path/conf/httpd.conf # HTTPS
@@ -374,6 +376,7 @@ function install_apache() {
     sed -i 's@^#Include conf/extra/httpd-vhosts.conf@Include conf/extra/vhost/*.conf@' $Install_Apache_Path/conf/httpd.conf
     sed -i 's@^#Include conf/extra/httpd-mpm.conf@Include conf/extra/httpd-mpm.conf@' $Install_Apache_Path/conf/httpd.conf
     sed -i 's@^#Include conf/extra/httpd-default.conf@Include conf/extra/httpd-default.conf@' $Install_Apache_Path/conf/httpd.conf
+    sed -i 's@^#Include conf/extra/httpd-ssl.conf@Include conf/extra/httpd-ssl.conf@' $Install_Apache_Path/conf/httpd.conf
     cat >> $Install_Apache_Path/conf/httpd.conf << EOF
 # deflate
 Include conf/extra/httpd-deflate.conf
@@ -409,6 +412,12 @@ EOF
     sed -i 's@^ServerTokens\(.*\)@ServerTokens Prod@' $Install_Apache_Path/conf/extra/httpd-default.conf
     sed -i 's@^ServerSignature\(.*\)@ServerSignature Off@' $Install_Apache_Path/conf/extra/httpd-default.conf
     echo -e "\033[32mhttpd-default 设置成功\033[0m"
+
+    # httpd-ssl
+    sed -i '/^Listen 443/a\
+Protocols h2 http/1.1' $Install_Apache_Path/conf/extra/httpd-ssl.conf
+    sed -i '/SSL Virtual Host Context/,$d' $Install_Apache_Path/conf/extra/httpd-ssl.conf
+    echo -e "\033[32mhttpd-ssl 设置成功\033[0m"
 
     # http-deflate
     rm -f $Install_Apache_Path/conf/extra/httpd-deflate.conf
@@ -483,3 +492,6 @@ else
     echo ""
     echo -e "\033[34mApache 安装被取消，未作任何更改...\033[0m"
 fi
+
+# Ver1.0.1
+# - 添加 Proxy 和 SSL 支持

@@ -8,6 +8,9 @@
 #### [upgrade_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache_http2.sh)
 - 支持 CentOS 6.X / CentOS 7.X、Apache 2.4、PCRE 1、OpenSSL 1.0.2、nghttp2
 
+#### [install_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_php.sh)
+- 支持 CentOS 7.X、PHP 7.2.X、Apache 2.4、PCRE 1
+
 #### [upgrade_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_php.sh)
 - 仅支持 CentOS 6.X、PHP 7.0.X / PHP 7.1.X、Apache 2.4、PCRE 1
 

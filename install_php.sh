@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -130,6 +130,7 @@ function install_php() {
     fi
 
     # Configure && Make && Install
+    rm -rf pcre-$Latest_PCRE_Ver
     tar -zxf pcre-$Latest_PCRE_Ver.tar.gz
     cd pcre-$Latest_PCRE_Ver
     ./configure --prefix=$Install_PCRE_Path
@@ -172,6 +173,7 @@ function install_php() {
     fi
 
     # Configure && Make && Install
+    rm -rf libiconv-$Latest_libiconv_Ver
     tar -zxf libiconv-$Latest_libiconv_Ver.tar.gz
     cd libiconv-$Latest_libiconv_Ver
     ./configure --prefix=$Install_libiconv_Path
@@ -214,6 +216,7 @@ function install_php() {
     fi
 
     # Configure && Make && Install
+    rm -rf re2c-$Latest_re2c_Ver
     tar -zxf re2c-$Latest_re2c_Ver.tar.gz
     cd re2c-$Latest_re2c_Ver
     ./configure
@@ -261,6 +264,7 @@ function install_php() {
     fi
 
     # Configure && Make && Install
+    rm -rf php-$Latest_PHP_Ver
     tar -zxf php-$Latest_PHP_Ver.tar.gz
     cd php-$Latest_PHP_Ver
     ./configure \
@@ -423,7 +427,8 @@ function install_php() {
     echo "<?php phpinfo();" > $WWW_Path/default/index.php
     echo ""
     sed -i 's@^#\(.*\)@\1@' $Install_Apache_Path/conf/extra/vhost/80.localhost.conf
-    systemctl restart httpd.service
+    systemctl stop httpd.service
+    systemctl start httpd.service
     service php-fpm restart
     Index_Content=`curl -s http://localhost/`
     if [[ `echo "$Index_Content" | grep -c "PHP Version $Latest_PHP_Ver"` != 0 ]]; then
@@ -467,3 +472,7 @@ else
     echo ""
     echo -e "\033[34mPHP 安装被取消，未作任何更改...\033[0m"
 fi
+
+# Ver1.0.1
+# - 修正安装完成后重启 httpd 失败的问题
+# - 解压前删除文件夹，防止 make 缓存

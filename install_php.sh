@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -273,7 +273,7 @@ function install_php() {
     --with-libdir=lib64 \
     --with-mysqli=mysqlnd \
     --with-pdo-mysql=mysqlnd \
-    --with-mysql-sock=/tmp/mysql.sock \
+    --with-mysql-sock=/var/run/mysql.sock \
     --with-pcre-dir=$Install_PCRE_Path \
     --with-iconv-dir=$Install_libiconv_Path \
     --with-libxml-dir=/usr \
@@ -336,17 +336,16 @@ function install_php() {
     # Configure
     mkdir -p $Install_PHP_Path/etc
     cp -f php.ini-production $Install_PHP_Path/etc/php.ini
-    cp -f sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
     cp -f sapi/fpm/php-fpm.service /usr/lib/systemd/system/
     cp -f $Install_PHP_Path/etc/php-fpm.conf.default $Install_PHP_Path/etc/php-fpm.conf
     cp -f $Install_PHP_Path/etc/php-fpm.d/www.conf.default $Install_PHP_Path/etc/php-fpm.d/www.conf
+    mkdir -p /var/run/php-fpm
 
     if [[ `grep -c "$Install_PHP_Path/bin/:$Install_PHP_Path/sbin/" /etc/profile` == 0 ]]; then
         echo "export PATH=\${PATH}:$Install_PHP_Path/bin/:$Install_PHP_Path/sbin/" >> /etc/profile
         source /etc/profile
     fi
 
-    chmod +x /etc/init.d/php-fpm
     systemctl enable php-fpm
     if [ $? != 0 ]; then
         echo -e "\033[33m警告：php-fpm 设置开机自启动失败\033[0m"
@@ -399,7 +398,7 @@ function install_php() {
     sed -i 's@^;process_control_timeout =.*@process_control_timeout = 1m@' $Install_PHP_Path/etc/php-fpm.conf
 
     # www.conf
-    sed -i 's@^listen =.*@listen = /tmp/php-fpm.sock@' $Install_PHP_Path/etc/php-fpm.d/www.conf
+    sed -i 's@^listen =.*@listen = /var/run/php-fpm.sock@' $Install_PHP_Path/etc/php-fpm.d/www.conf
     sed -i 's@^;listen.owner =\(.*\)@listen.owner =\1@' $Install_PHP_Path/etc/php-fpm.d/www.conf
     sed -i 's@^;listen.group =\(.*\)@listen.group =\1@' $Install_PHP_Path/etc/php-fpm.d/www.conf
     sed -i 's@^;listen.mode =\(.*\)@listen.mode =\1@' $Install_PHP_Path/etc/php-fpm.d/www.conf
@@ -476,3 +475,6 @@ fi
 # Ver1.0.1
 # - 修正安装完成后重启 httpd 失败的问题
 # - 解压前删除文件夹，防止 make 缓存
+#
+# Ver1.0.2
+# - 修改 sock 文件位置，解决 systemctl 启动 php-fpm 出现无法找到 sock 文件的情况

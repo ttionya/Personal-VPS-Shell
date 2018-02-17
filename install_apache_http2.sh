@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -382,7 +382,7 @@ function install_apache() {
 Include conf/extra/httpd-deflate.conf
 
 <FilesMatch \.php$>
-    SetHandler "proxy:unix:/tmp/php-fpm.sock|fcgi://localhost:9000"
+    SetHandler "proxy:unix:/var/run/php-fpm.sock|fcgi://localhost:9000"
 </FilesMatch>
 EOF
     echo -e "\033[32m额外模块开启成功\033[0m"
@@ -394,7 +394,7 @@ EOF
     DocumentRoot "$WWW_Path/default/"
     ServerName localhost
 #    ProxyRequests Off
-#    ProxyPassMatch ^/(.*\.php(/.*)?)$ unix:/tmp/php-fpm.sock|fcgi://localhost:9000/data/www/default/
+#    ProxyPassMatch ^/(.*\.php(/.*)?)$ unix:/var/run/php-fpm.sock|fcgi://localhost:9000/data/www/default/
     <Directory "$WWW_Path/default/">
         Options +Includes -Indexes
         Require all granted
@@ -495,3 +495,6 @@ fi
 
 # Ver1.0.1
 # - 添加 Proxy 和 SSL 支持
+#
+# Ver1.0.2
+# - 修改 sock 文件位置，解决 systemctl 启动 php-fpm 出现无法找到 sock 文件的情况

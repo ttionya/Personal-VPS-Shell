@@ -14,6 +14,11 @@
 #### [upgrade_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_php.sh)
 - 仅支持 CentOS 6.X、PHP 7.0.X / PHP 7.1.X、Apache 2.4、PCRE 1
 
+#### [install_mysql57.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_mysql57.sh)
+- 支持 CentOS 7.X、MySQL 5.7
+- YUM 源安装
+- 设置为国内服务器会将 MySQL 软件源设为清华大学源
+
 #### [install_nvm.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_nvm.sh)
 - 支持 RH / CentOS 6.X / 7.X
 - 涉及 `rm -rf` 命令，操作务必小心

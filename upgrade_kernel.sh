@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.2.1
+# Version: 1.2.2
 # Author: ttionya
 
 
@@ -13,7 +13,7 @@ In_China=0
 ################### Check Info Start ####################
 # Check root User
 if [ $EUID != 0 ]; then
-   echo "错误：该脚本必须以 root 身份运行"
+   echo -e "\033[31m错误：该脚本必须以 root 身份运行\033[0m"
    exit 1
 fi
 
@@ -26,7 +26,7 @@ else
 fi
 CentOS_Ver=${CentOS_Ver%%.*}
 if [ $CentOS_Ver != 7 ]; then
-    echo "错误：该脚本仅支持 CentOS 7.X 版本"
+    echo -e "\033[31m错误：该脚本仅支持 CentOS 7.X 版本\033[0m"
     exit 1
 fi
 ################### Check Info End ####################
@@ -34,12 +34,12 @@ fi
 # Install Elrepo Function
 function install_elrepo() {
     echo ""
-    echo "===================== 开始安装 Elrepo ===================="
+    echo -e "\033[33m==================== 开始安装 Elrepo ====================\033[0m"
 
     rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
     rpm -Uvh --force http://www.elrepo.org/elrepo-release-$ElRepo_Ver.el7.elrepo.noarch.rpm
     if [ $? != 0 ]; then
-        echo "Elrepo 安装失败"
+        echo -e "\033[31m错误：Elrepo 安装失败\033[0m"
         exit 1
     fi
 
@@ -55,12 +55,12 @@ function install_elrepo() {
 function check_install_elrepo() {
     # Show Install Information
     clear
-    echo "##########################################################"
-    echo "# Install CentOS 7.X Elrepo Repository                   #"
-    echo "# Author: ttionya                                        #"
-    echo "##########################################################"
+    echo -e "\033[34m##########################################################\033[0m"
+    echo -e "\033[34m# Install CentOS 7.X Elrepo Repository                   #\033[0m"
+    echo -e "\033[34m# Author: ttionya                                        #\033[0m"
+    echo -e "\033[34m##########################################################\033[0m"
     echo ""
-    echo "升级内核需要安装 elrepo 仓库"
+    echo -e "\033[33m升级内核需要安装 elrepo 仓库\033[0m"
     echo ""
     echo "安装 elrepo 仓库？ (y/n)"
     read -p "(Default: n):" Check_Install
@@ -73,15 +73,15 @@ function check_install_elrepo() {
         install_elrepo
     else
         echo ""
-        echo "内核升级被取消，未作任何更改..."
-        echo ""
+        echo -e "\033[34m内核升级被取消，未作任何更改...\033[0m"
+        exit 0
     fi
 }
 
 # Upgrade Kernel Function
 function upgrade_kernel() {
     echo ""
-    echo "===================== 开始升级内核 ===================="
+    echo -e "\033[33m==================== 开始升级内核 ====================\033[0m"
 
     # 移除旧内核
     rpm -e --nodeps kernel-headers
@@ -101,7 +101,8 @@ function upgrade_kernel() {
         grub2-mkconfig -o /boot/grub2/grub.cfg
     fi
 
-    echo "===================== 内核安装完成，按 Y 立即重启 ===================="
+    echo ""
+    echo -e "\033[32m==================== 内核安装完成，按 Y 立即重启 ====================\033[0m"
     read -p "(Default: n):" Check_Reboot
     if [ -z $Check_Reboot ]; then
         Check_Reboot="n"
@@ -112,8 +113,7 @@ function upgrade_kernel() {
         reboot
     else
         echo ""
-        echo "请手动重启系统"
-        echo ""
+        echo -e "\033[33m请手动重启系统\033[0m"
     fi
 }
 
@@ -129,21 +129,20 @@ function check_upgrade_kernel() {
     # 最新版无需升级
     if [ -z $Newest_Kernel_Version ]; then
         echo ""
-        echo -e "\E[1;33m您的内核 $Current_Kernel_Version 已是最新版，无需升级\E[0m"
-        echo ""
+        echo -e "\033[33m您的内核 $Current_Kernel_Version 已是最新版，无需升级\033[0m"
         exit 0
     fi
 
     # Show Upgrade Information
     clear
-    echo "##########################################################"
-    echo "# Upgrade CentOS 7.X Kernel"
-    echo "# Author: ttionya"
-    echo -e "# Current Kernel: \E[1;33m$Current_Kernel_Version\E[0m"
-    echo -e "# Newest Kernel: \E[1;33m$Newest_Kernel_Version\E[0m"
-    echo "##########################################################"
+    echo -e "\033[34m##########################################################\033[0m"
+    echo -e "\033[34m# Upgrade CentOS 7.X Kernel\033[0m"
+    echo -e "\033[34m# Author: ttionya\033[0m"
+    echo -e "\033[34m# Current Kernel: \033[33m$Current_Kernel_Version\033[0m\033[0m"
+    echo -e "\033[34m# Newest Kernel: \033[33m$Newest_Kernel_Version\033[0m\033[0m"
+    echo -e "\033[34m##########################################################\033[0m"
     echo ""
-    echo "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
+    echo -e "\033[33m您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本\033[0m"
     echo ""
     echo "继续升级内核？ (y/n)"
     read -p "(Default: n):" Check_Update
@@ -156,8 +155,7 @@ function check_upgrade_kernel() {
         upgrade_kernel
     else
         echo ""
-        echo "内核升级被取消，未作任何更改..."
-        echo ""
+        echo -e "\033[34m内核升级被取消，未作任何更改...\033[0m"
     fi
 }
 
@@ -195,3 +193,7 @@ fi
 #
 # Ver1.2.1
 # - 修复 kernel-header 未安装时导致升级失败的问题
+#
+# Ver1.2.2
+# - 修复无法终止脚本的错误
+# - 添加更多颜色支持

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.0.3
 # Author: ttionya
 
 
@@ -99,12 +99,12 @@ else
 fi
 
 # Check CPU Number
-Cpu_Num=`cat /proc/cpuinfo | grep 'processor' | wc -l`
+Cpu_Num=`cat /proc/cpuinfo | grep -c 'processor'`
 ################### Check Info End ####################
 
 function install_php() {
     echo ""
-    echo -e "\033[33m===================== PHP 安装程序 启动 ====================\033[0m"
+    echo -e "\033[33m==================== PHP 安装程序 启动 ====================\033[0m"
     cd /usr/local/src
 
     # Remove && Install && Update
@@ -157,7 +157,7 @@ function install_php() {
     rm -rf /usr/local/src/pcre-$Latest_PCRE_Ver/
 
     # Echo
-    echo -e "\033[32m===================== PCRE 安装完成 ====================\033[0m"
+    echo -e "\033[32m==================== PCRE 安装完成 ====================\033[0m"
     echo ""
 
     # Download libiconv Version
@@ -200,7 +200,7 @@ function install_php() {
     rm -rf /usr/local/src/libiconv-$Latest_libiconv_Ver/
 
     # Echo
-    echo -e "\033[32m===================== libiconv 安装完成 ====================\033[0m"
+    echo -e "\033[32m==================== libiconv 安装完成 ====================\033[0m"
     echo ""
 
     # Download re2c Version
@@ -242,7 +242,7 @@ function install_php() {
     rm -rf /usr/local/src/re2c-$Latest_re2c_Ver/
 
     # Echo
-    echo -e "\033[32m===================== re2c 安装完成 ====================\033[0m"
+    echo -e "\033[32m==================== re2c 安装完成 ====================\033[0m"
     echo ""
 
     # Download Latest PHP Version
@@ -273,7 +273,7 @@ function install_php() {
     --with-libdir=lib64 \
     --with-mysqli=mysqlnd \
     --with-pdo-mysql=mysqlnd \
-    --with-mysql-sock=/var/run/mysql.sock \
+    --with-mysql-sock=/var/lib/mysql/mysql.sock \
     --with-pcre-dir=$Install_PCRE_Path \
     --with-iconv-dir=$Install_libiconv_Path \
     --with-libxml-dir=/usr \
@@ -331,7 +331,7 @@ function install_php() {
         exit 1
     fi
 
-    echo -e "\033[32m===================== PHP 安装完成，开始进行配置 ====================\033[0m"
+    echo -e "\033[32m==================== PHP 安装完成，开始进行配置 ====================\033[0m"
 
     # Configure
     mkdir -p $Install_PHP_Path/etc
@@ -396,6 +396,7 @@ function install_php() {
     sed -i 's@^;emergency_restart_threshold =.*@emergency_restart_threshold = 60@' $Install_PHP_Path/etc/php-fpm.conf
     sed -i 's@^;emergency_restart_interval =.*@emergency_restart_interval = 1m@' $Install_PHP_Path/etc/php-fpm.conf
     sed -i 's@^;process_control_timeout =.*@process_control_timeout = 1m@' $Install_PHP_Path/etc/php-fpm.conf
+    echo -e "\033[32mphp-fpm.conf 配置成功\033[0m"
 
     # www.conf
     sed -i 's@^listen =.*@listen = /var/run/php-fpm.sock@' $Install_PHP_Path/etc/php-fpm.d/www.conf
@@ -412,6 +413,7 @@ function install_php() {
     sed -i 's@^;slowlog = \(.*\)@slowlog = var/\1@' $Install_PHP_Path/etc/php-fpm.d/www.conf
     sed -i 's@^;request_slowlog_timeout =.*@request_slowlog_timeout = 5s@' $Install_PHP_Path/etc/php-fpm.d/www.conf
     sed -i 's@^;catch_workers_output =.*@catch_workers_output = yes@' $Install_PHP_Path/etc/php-fpm.d/www.conf
+    echo -e "\033[32mwww.conf 配置成功\033[0m"
 
     # Clean Up
     cd ~
@@ -421,13 +423,14 @@ function install_php() {
     rm -rf /var/log/php-fpm/
     ln -s $Install_PHP_Path/var/log /var/log/php-fpm
 
-    echo -e "\033[32m===================== PHP 配置完成，开始进行测试 ====================\033[0m"
+    echo -e "\033[32m==================== PHP 配置完成，开始进行测试 ====================\033[0m"
 
     echo "<?php phpinfo();" > $WWW_Path/default/index.php
     echo ""
     sed -i 's@^#\(.*\)@\1@' $Install_Apache_Path/conf/extra/vhost/80.localhost.conf
     systemctl stop httpd.service
     systemctl start httpd.service
+    systemctl restart httpd.service
     service php-fpm restart
     Index_Content=`curl -s http://localhost/`
     if [[ `echo "$Index_Content" | grep -c "PHP Version $Latest_PHP_Ver"` != 0 ]]; then
@@ -478,3 +481,7 @@ fi
 #
 # Ver1.0.2
 # - 修改 sock 文件位置，解决 systemctl 启动 php-fpm 出现无法找到 sock 文件的情况
+#
+# Ver1.0.3
+# - 修改 MySQL sock 文件位置
+# - 修正 httpd 服务经常起不来的问题

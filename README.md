@@ -28,9 +28,9 @@
 - MySQL 清华大学源（China）
 
 #### [install_nvm.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_nvm.sh)
-- 支持 RH / CentOS 6.X / 7.X
+- CentOS 7
 - 涉及 `rm -rf` 命令，操作务必小心
-- 已将软件源设为淘宝
+- NVM、NPM 淘宝源（China）
 
 #### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
 - yum, apt, zypper, pacman 包管理器

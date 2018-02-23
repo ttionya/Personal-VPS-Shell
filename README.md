@@ -42,7 +42,8 @@
 
 #### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
 - CentOS 7
-- Docker 阿里源
+- Docker 阿里源（China）
+- Docker Images 国内镜像（China）
 
 #### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
 - CentOS 7

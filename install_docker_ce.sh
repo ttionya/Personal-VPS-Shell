@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.0.3
 # Author: ttionya
 # https://docs.docker.com/engine/installation/linux/docker-ce/centos/
 
@@ -70,6 +70,7 @@ function main() {
 
     # China
     if [[ $In_China == 1 ]]; then
+        mkdir -p /etc/docker
         echo '{ "registry-mirrors": [ "https://registry.docker-cn.com" ] }' > /etc/docker/daemon.json
     fi
 
@@ -110,3 +111,6 @@ fi
 #
 # Ver1.0.2
 # 支持设定服务器地址，设置为国内则自动将 Docker CE Repo 设置为阿里源，并使用国内 Docker 镜像
+#
+# Ver1.0.3
+# 防止设置源时出现目录未创建的问题

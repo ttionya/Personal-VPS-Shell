@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.3
+# Version: 1.1.0
 # Author: ttionya
 # https://docs.docker.com/engine/installation/linux/docker-ce/centos/
 
@@ -8,6 +8,8 @@
 ################### Custom Setting ####################
 # Docker 用户，不存在会自动创建
 Docker_User="docker"
+# Docker Compose 版本
+Docker_Compose_Ver="1.19.0"
 # 中国服务器
 In_China=0
 
@@ -74,6 +76,10 @@ function main() {
         echo '{ "registry-mirrors": [ "https://registry.docker-cn.com" ] }' > /etc/docker/daemon.json
     fi
 
+    # Docker Compose
+    curl -L https://github.com/docker/compose/releases/download/$Docker_Compose_Ver/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+
     # Auto Run
     systemctl enable docker
     systemctl start docker
@@ -114,3 +120,6 @@ fi
 #
 # Ver1.0.3
 # 防止设置源时出现目录未创建的问题
+#
+# Ver1.1.0
+# 增加安装 Docker Compose 功能

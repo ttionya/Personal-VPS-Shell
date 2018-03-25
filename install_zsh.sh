@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.3
+# Version: 1.0.4
 # Author: ttionya
 
 
@@ -10,7 +10,7 @@ Current_User="root"
 # Zsh Theme (https://wiki.github.com/robbyrussell/oh-my-zsh/themes)
 Zsh_Theme="ys"
 # Zsh Plugins 用空格隔开 (https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins)
-Zsh_Plugins="git composer docker encode64 extract grunt gulp history ng node npm nvm python redis-cli screen sudo yum yarn z"
+Zsh_Plugins="git composer docker docker-compose encode64 extract grunt gulp history ng node npm nvm python redis-cli screen sudo yum yarn z"
 
 ################### Check Info Start ####################
 # Check root User
@@ -158,3 +158,6 @@ fi
 # Ver1.0.3
 # - 移除多余的 source 命令
 # - 使用丑陋的方法处理 plugins 问题
+#
+# Ver1.0.4
+# - 添加 Docker Compose 插件支持

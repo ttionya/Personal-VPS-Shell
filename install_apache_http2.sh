@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.1.0
 # Author: ttionya
 
 
@@ -11,9 +11,9 @@ Low_Group="www"
 # 默认网站路径
 WWW_Path="/data/www"
 # PCRE 版本号
-Latest_PCRE_Ver="8.41"
+Latest_PCRE_Ver="8.42"
 # nghttp2 版本号
-Latest_nghttp2_Ver="1.30.0"
+Latest_nghttp2_Ver="1.31.0"
 # 以下变量涉及 rm -rf，乱来你就死定了，路径最后不要加上斜杠 /
 # 以下变量涉及 rm -rf，乱来你就死定了，路径最后不要加上斜杠 /
 # 以下变量涉及 rm -rf，乱来你就死定了，路径最后不要加上斜杠 /
@@ -119,7 +119,7 @@ function install_apache() {
     # Download PCRE Version
     echo ""
     if [ ! -s pcre-$Latest_PCRE_Ver.tar.gz ]; then
-        wget -c -t3 -T60 "https://sourceforge.net/projects/pcre/files/pcre/$Latest_PCRE_Ver/pcre-$Latest_PCRE_Ver.tar.gz/download" -O pcre-$Latest_PCRE_Ver.tar.gz
+        wget -c -t3 -T60 "https://ftp.pcre.org/pub/pcre/pcre-$Latest_PCRE_Ver.tar.gz"
         if [ $? != 0 ]; then
             rm -rf pcre-$Latest_PCRE_Ver.tar.gz
             echo ""
@@ -498,3 +498,7 @@ fi
 #
 # Ver1.0.2
 # - 修改 sock 文件位置，解决 systemctl 启动 php-fpm 出现无法找到 sock 文件的情况
+#
+# Ver1.1.0
+# - 修改 PCRE 下载源到其 FTP，以解决 SF 更新滞后的问题
+# - 更新 PCRE 和 nghttp2 版本

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
 ################### Custom Setting ####################
 # Python 3 版本号
-Latest_Python3_Ver="3.6.4"
+Latest_Python3_Ver="3.7.0"
 # Python 3 安装路径
 Install_Python3_Path="/usr/local/python3"
 
@@ -41,7 +41,7 @@ function main() {
     echo "===================== Python 3 安装程序 启动 ===================="
 
     # Install Dependencies
-    yum -y install gcc gcc-c++ sqlite-devel zlib zlib-devel
+    yum -y install gcc gcc-c++ libffi-devel sqlite-devel zlib zlib-devel
 
     cd /usr/local/src
     if [ ! -s Python-$Latest_Python3_Ver.tgz ]; then
@@ -108,3 +108,7 @@ fi
 # Ver1.0.1
 # - 将下载源更改为淘宝源
 # - 添加依赖库
+#
+# Ver1.0.2
+# - 添加 Python3.7 所需新依赖
+# - 升级 Python3 版本

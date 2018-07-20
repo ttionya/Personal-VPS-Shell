@@ -37,6 +37,7 @@
 
 #### [install_python3.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_python3.sh)
 - CentOS 7
+- Pip 清华源（China）
 
 #### [install_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_git.sh)
 

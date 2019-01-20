@@ -2,6 +2,9 @@
 
 ### **自用服务器脚本**
 
+- CentOS 7
+- root 用户
+
 #### [install_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_apache_http2.sh)
 - CentOS 7
 - Apache 2.4
@@ -40,6 +43,8 @@
 - Pip 清华源（China）
 
 #### [install_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_git.sh)
+
+#### [install_zstd.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zstd.sh)
 
 #### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
 - CentOS 7

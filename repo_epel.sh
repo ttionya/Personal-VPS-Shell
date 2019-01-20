@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -62,6 +62,7 @@ function install_epel() {
         color red "错误：EPEL 安装失败"
         exit 1
     fi
+    rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
 
     # China
     if [[ $In_China == 1 ]]; then
@@ -82,3 +83,6 @@ else
     color yellow "检测到未安装 EPEL Repo，即将安装..."
     install_epel
 fi
+
+# Ver1.0.1
+# - 安装完成后加载 GPG Key

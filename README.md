@@ -58,3 +58,8 @@
 
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
 - 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
+
+### Repo
+
+#### [repo_epel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh)
+- EPEL 清华大学源（China）

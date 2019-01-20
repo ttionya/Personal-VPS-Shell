@@ -59,7 +59,18 @@
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
 - 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
 
+
+### 分析软件
+
+#### [install_goaccess.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_goaccess.sh)
+
+> 日志分析软件
+
+- EPEL 清华大学源（China）
+
+
 ### Repo
 
 #### [repo_epel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh)
+
 - EPEL 清华大学源（China）

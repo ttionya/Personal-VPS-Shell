@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 ################### Custom Setting ####################
@@ -110,7 +110,7 @@ color blue "##########################################################"
 color ""
 color yellow "将安装 Zstandard $Latest_Zstandard_Ver"
 color ""
-color "是否安装？ (y/n)"
+color x "是否安装？ (y/n)"
 read -p "(Default: n):" Check_Install
 if [ -z $Check_Install ]; then
     Check_Install="n"
@@ -124,3 +124,6 @@ else
     color blue "Zstandard $Latest_Zstandard_Ver 安装被取消，未作任何更改..."
     color ""
 fi
+
+# Ver1.0.1
+# - 修正文案无法正常显示的问题

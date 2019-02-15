@@ -44,11 +44,6 @@
 
 #### [install_zstd.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zstd.sh)
 
-#### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
-- CentOS 7
-- Docker 阿里源（China）
-- Docker Images 国内镜像（China）
-
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
 - 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
 
@@ -70,6 +65,15 @@
 > Git 版本控制软件
 
 - 安装、升级通用
+
+#### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
+
+> Docker 和 Docker Compose
+
+- 安装、升级通用
+- Docker 阿里源（China）
+- Docker Images 国内镜像（China）
+- Docker Compose DaoCloud 下载（China）
 
 
 ### 分析软件

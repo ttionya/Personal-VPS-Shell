@@ -74,3 +74,7 @@
 #### [repo_epel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh)
 
 - EPEL 清华大学源（China）
+
+#### [repo_elrepo.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_elrepo.sh)
+
+- ELRepo 清华大学源（China）

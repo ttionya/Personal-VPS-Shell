@@ -1,87 +1,58 @@
 #!/bin/bash
 
-# Version: 1.2.2
+# Version: 1.3.0
 # Author: ttionya
 
 
 ################### Customer Setting ####################
-# elrepo 版本
-ElRepo_Ver="7.0-3"
 # 中国服务器
 In_China=0
 
+################### Function ####################
+function color() {
+    case $1 in
+        red)
+            echo -e "\033[31m$2\033[0m"
+            ;;
+        green)
+            echo -e "\033[32m$2\033[0m"
+            ;;
+        yellow)
+            echo -e "\033[33m$2\033[0m"
+            ;;
+        blue)
+            echo -e "\033[34m$2\033[0m"
+            ;;
+        *)
+            echo $2
+    esac
+}
+
 ################### Check Info Start ####################
 # Check root User
-if [ $EUID != 0 ]; then
-   echo -e "\033[31m错误：该脚本必须以 root 身份运行\033[0m"
+if [[ ${EUID} != 0 ]]; then
+   color red "错误：该脚本必须以 root 身份运行"
    exit 1
 fi
 
 # Check CentOS Version
 # CentOS 7.X Only
-if [ -s /etc/redhat-release ]; then
+if [[ -s /etc/redhat-release ]]; then
     CentOS_Ver=`grep -oE  "[0-9.]+" /etc/redhat-release`
 else
     CentOS_Ver=`grep -oE  "[0-9.]+" /etc/issue`
 fi
 CentOS_Ver=${CentOS_Ver%%.*}
-if [ $CentOS_Ver != 7 ]; then
-    echo -e "\033[31m错误：该脚本仅支持 CentOS 7.X 版本\033[0m"
+if [[ ${CentOS_Ver} != 7 ]]; then
+    color red "错误：该脚本仅支持 CentOS 7.X 版本"
     exit 1
 fi
 ################### Check Info End ####################
 
-# Install Elrepo Function
-function install_elrepo() {
-    echo ""
-    echo -e "\033[33m==================== 开始安装 Elrepo ====================\033[0m"
-
-    rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-    rpm -Uvh --force http://www.elrepo.org/elrepo-release-$ElRepo_Ver.el7.elrepo.noarch.rpm
-    if [ $? != 0 ]; then
-        echo -e "\033[31m错误：Elrepo 安装失败\033[0m"
-        exit 1
-    fi
-
-    # China
-    if [[ $In_China == 1 ]]; then
-        sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
-        sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
-        sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
-    fi
-}
-
-# Check Install Elrepo Function
-function check_install_elrepo() {
-    # Show Install Information
-    clear
-    echo -e "\033[34m##########################################################\033[0m"
-    echo -e "\033[34m# Install CentOS 7.X Elrepo Repository                   #\033[0m"
-    echo -e "\033[34m# Author: ttionya                                        #\033[0m"
-    echo -e "\033[34m##########################################################\033[0m"
-    echo ""
-    echo -e "\033[33m升级内核需要安装 elrepo 仓库\033[0m"
-    echo ""
-    echo "安装 elrepo 仓库？ (y/n)"
-    read -p "(Default: n):" Check_Install
-    if [ -z $Check_Install ]; then
-        Check_Install="n"
-    fi
-
-    # Check Install
-    if [[ $Check_Install == y || $Check_Install == Y ]]; then
-        install_elrepo
-    else
-        echo ""
-        echo -e "\033[34m内核升级被取消，未作任何更改...\033[0m"
-        exit 0
-    fi
-}
-
 # Upgrade Kernel Function
 function upgrade_kernel() {
-    echo ""
-    echo -e "\033[33m==================== 开始升级内核 ====================\033[0m"
+    color ""
+    color yellow "==================== 开始升级内核 ===================="
 
     # 移除旧内核
     rpm -e --nodeps kernel-headers
@@ -93,27 +64,28 @@ function upgrade_kernel() {
     yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs
 
     # 设置启动项
-    grubDefault=`cat /etc/default/grub | grep GRUB_DEFAULT | awk -F "=" '{print $2}'`
-    if [[ $grubDefault == saved ]]; then
+    GrubDefault=`cat /etc/default/grub | grep GRUB_DEFAULT | awk -F "=" '{print $2}'`
+    if [[ ${GrubDefault} == saved ]]; then
         cat /boot/grub2/grub.cfg | grep -P "^menuentry" | awk -F "'" '{print $2}' | head -n 1 | xargs -I {} grub2-set-default {}
     else
         sed -i 's@^GRUB_DEFAULT=\(.*\)@GRUB_DEFAULT=0@' /etc/default/grub
         grub2-mkconfig -o /boot/grub2/grub.cfg
     fi
 
-    echo ""
-    echo -e "\033[32m==================== 内核安装完成，按 Y 立即重启 ====================\033[0m"
+    color ""
+    color green "==================== 内核安装完成，按 Y 立即重启 ===================="
     read -p "(Default: n):" Check_Reboot
-    if [ -z $Check_Reboot ]; then
+    if [[ -z ${Check_Reboot} ]]; then
         Check_Reboot="n"
     fi
 
     # Check Update
-    if [[ $Check_Reboot == y || $Check_Reboot == Y ]]; then
+    if [[ ${Check_Reboot} == y || ${Check_Reboot} == Y ]]; then
         reboot
     else
-        echo ""
-        echo -e "\033[33m请手动重启系统\033[0m"
+        color ""
+        color yellow "请手动重启系统"
+        color ""
     fi
 }
 
@@ -127,47 +99,44 @@ function check_upgrade_kernel() {
     Newest_Kernel_Version=`yum --enablerepo=elrepo-kernel list | grep -P '[^@]elrepo-kernel' | grep kernel-ml.x86_64 | awk -F" " '{print $2}'`
 
     # 最新版无需升级
-    if [ -z $Newest_Kernel_Version ]; then
-        echo ""
-        echo -e "\033[33m您的内核 $Current_Kernel_Version 已是最新版，无需升级\033[0m"
+    if [[ -z ${Newest_Kernel_Version} ]]; then
+        color ""
+        color yellow "您的内核 ${Current_Kernel_Version} 已是最新版，无需升级"
         exit 0
     fi
 
     # Show Upgrade Information
     clear
-    echo -e "\033[34m##########################################################\033[0m"
-    echo -e "\033[34m# Upgrade CentOS 7.X Kernel\033[0m"
-    echo -e "\033[34m# Author: ttionya\033[0m"
-    echo -e "\033[34m# Current Kernel: \033[33m$Current_Kernel_Version\033[0m\033[0m"
-    echo -e "\033[34m# Newest Kernel: \033[33m$Newest_Kernel_Version\033[0m\033[0m"
-    echo -e "\033[34m##########################################################\033[0m"
-    echo ""
-    echo -e "\033[33m您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本\033[0m"
-    echo ""
-    echo "继续升级内核？ (y/n)"
+    color blue "##########################################################"
+    color blue "# Upgrade CentOS 7.X Kernel"
+    color blue "# Author: ttionya"
+    color blue "# Current Kernel: $(color yellow ${Current_Kernel_Version})"
+    color blue "# Newest Kernel: $(color yellow ${Newest_Kernel_Version})"
+    color blue "##########################################################"
+    color ""
+    color yellow "您将升级内核到最新版本，此操作具有危险性，请不要在生产环境运行该脚本"
+    color ""
+    color x "继续升级内核？ (y/n)"
     read -p "(Default: n):" Check_Update
-    if [ -z $Check_Update ]; then
+    if [[ -z ${Check_Update} ]]; then
         Check_Update="n"
     fi
 
     # Check Update
-    if [[ $Check_Update == y || $Check_Update == Y ]]; then
+    if [[ ${Check_Update} == y || ${Check_Update} == Y ]]; then
         upgrade_kernel
     else
-        echo ""
-        echo -e "\033[34m内核升级被取消，未作任何更改...\033[0m"
+        color ""
+        color blue "内核升级被取消，未作任何更改..."
+        color ""
     fi
 }
 
-# Check Elrepo
-Is_Installed_Elrepo=`yum list installed | grep elrepo-release | wc -l`
+# Install ELRepo
+curl https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_elrepo.sh | bash -s -- ${In_China}
 
-if [[ $Is_Installed_Elrepo == 1 ]]; then
-    check_upgrade_kernel
-else
-    check_install_elrepo
-    check_upgrade_kernel
-fi
+# Check Information
+check_upgrade_kernel
 
 # Ver1.0.1
 # - 修改脚本内容
@@ -197,3 +166,7 @@ fi
 # Ver1.2.2
 # - 修复无法终止脚本的错误
 # - 添加更多颜色支持
+#
+# Ver1.3.0
+# - 拆分 ELRepo 安装程序
+# - 优化脚本

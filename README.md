@@ -51,13 +51,15 @@
 - Docker 阿里源（China）
 - Docker Images 国内镜像（China）
 
-#### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
-- CentOS 7
-- ElRepo 清华大学源（China）
-- **请勿在生产环境使用**
-
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
 - 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
+
+#### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
+
+> 升级内核到最新版本  
+> **请勿在生产环境使用**
+
+- ELRepo 清华大学源（China）
 
 
 ### 分析软件

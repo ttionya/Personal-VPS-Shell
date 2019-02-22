@@ -75,6 +75,14 @@
 - Docker Images 国内镜像（China）
 - Docker Compose DaoCloud 下载（China）
 
+#### [install_nodesource.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_nodesource.sh)
+
+> Node 和 NPM
+
+- 安装、升级通用
+- Node Source 清华大学源（China）
+- NPM 淘宝源（China）
+
 
 ### 分析软件
 

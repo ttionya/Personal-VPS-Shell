@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.3.0
+# Version: 1.3.1
 # Author: ttionya
 
 
@@ -64,9 +64,13 @@ function upgrade_kernel() {
     yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel kernel-ml-headers kernel-ml-tools kernel-ml-tools-libs
 
     # 设置启动项
-    GrubDefault=`cat /etc/default/grub | grep GRUB_DEFAULT | awk -F "=" '{print $2}'`
+    GrubDefault=`grep GRUB_DEFAULT /etc/default/grub | awk -F "=" '{print $2}'`
     if [[ ${GrubDefault} == saved ]]; then
-        cat /boot/grub2/grub.cfg | grep -P "^menuentry" | awk -F "'" '{print $2}' | head -n 1 | xargs -I {} grub2-set-default {}
+        # 如果不存在先生成
+        if [[ ! -f /boot/grub2/grub.cfg ]]; then
+            grub2-mkconfig -o /boot/grub2/grub.cfg
+        fi
+        grep -P -m 1 "^menuentry" /boot/grub2/grub.cfg | awk -F "'" '{print $2}' | xargs -I {} grub2-set-default {}
     else
         sed -i 's@^GRUB_DEFAULT=\(.*\)@GRUB_DEFAULT=0@' /etc/default/grub
         grub2-mkconfig -o /boot/grub2/grub.cfg
@@ -170,3 +174,6 @@ check_upgrade_kernel
 # Ver1.3.0
 # - 拆分 ELRepo 安装程序
 # - 优化脚本
+#
+# Ver1.3.1
+# - 修复 GRUB 配置文件不存在导致配置失败的问题

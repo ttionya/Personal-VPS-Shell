@@ -66,6 +66,10 @@
 
 - 安装、升级通用
 
+#### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
+
+> 代替 Bash
+
 #### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
 
 > Docker 和 Docker Compose

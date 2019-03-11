@@ -1,39 +1,50 @@
 #!/bin/bash
 
-# Version: 1.0.4
+# Version: 1.1.0
 # Author: ttionya
 
 
 ################### Custom Setting ####################
-# 执行本脚本的用户，用 `whoami` 查看
-Current_User="root"
-# Zsh Theme (https://wiki.github.com/robbyrussell/oh-my-zsh/themes)
+# Zsh Theme (https://github.com/robbyrussell/oh-my-zsh/wiki/Themes)
 Zsh_Theme="ys"
-# Zsh Plugins 用空格隔开 (https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins)
-Zsh_Plugins="git composer docker docker-compose encode64 extract grunt gulp history ng node npm nvm python redis-cli screen sudo yum yarn z"
+# Zsh Plugins 用空格隔开 (https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins)
+Zsh_Plugins="git composer docker docker-compose encode64 extract grunt gulp history man ng node npm npx nvm pip python redis-cli screen sudo yum yarn z"
+
+################### Function ####################
+function color() {
+    case $1 in
+        red)
+            echo -e "\033[31m$2\033[0m"
+            ;;
+        green)
+            echo -e "\033[32m$2\033[0m"
+            ;;
+        yellow)
+            echo -e "\033[33m$2\033[0m"
+            ;;
+        blue)
+            echo -e "\033[34m$2\033[0m"
+            ;;
+        *)
+            echo $2
+    esac
+}
 
 ################### Check Info Start ####################
-# Check root User
-if [ $EUID != 0 ]; then
-   echo "错误：该脚本必须以 root 身份运行"
-   exit 1
+# Check Zsh
+if ! command -v zsh >/dev/null 2>&1; then
+    if [[ ${EUID} != 0 ]]; then
+        color red "错误：需要 root 身份安装 Zsh"
+        exit 1
+    fi
 fi
 
-# Check Current User
-Current_User_Info=`cat /etc/passwd | grep -oE "^$Current_User:(.*)"`
-if [ -z $Current_User_Info ]; then
-    echo "执行本脚本的用户不存在"
-    exit 1
-fi
-
-# Check System
+# Check Package Manager
 PM=""
-which yum 1>/dev/null 2>/dev/null && PM="yum"
-which apt-get 1>/dev/null 2>/dev/null && PM="apt"
-which zypper 1>/dev/null 2>/dev/null && PM="zypper"
-which pacman 1>/dev/null 2>/dev/null && PM="pacman"
-if [ -z "$PM" ]; then
-    echo "错误：该脚本仅支持 yum, apt, zypper, pacman 包管理器"
+command -v yum >/dev/null 2>&1 && PM="yum"
+command -v apt-get >/dev/null 2>&1 && PM="apt"
+if [[ -z ${PM} ]]; then
+    color red "错误：该脚本仅支持 yum, apt 包管理器"
     exit 1
 fi
 ################### Check Info End ####################
@@ -41,51 +52,41 @@ fi
 
 # Main Function
 function main() {
-    echo ""
-    echo "===================== Oh My Zsh 安装程序 启动 ===================="
+    color ""
+    color yellow "===================== Oh My Zsh 安装程序 启动 ===================="
 
-    # Install zsh
-    case $PM in
-    yum)
-        yum install -y zsh
-        ;;
-    apt)
-        apt-get install -y zsh
-        ;;
-    zypper)
-        zypper install --no-confirm zsh
-        ;;
-    pacman)
-        pacman -S zsh
-        ;;
-    esac
+    # Check Git
+    if ! command -v git >/dev/null 2>&1; then
+        color red "错误：未找到 Git 命令"
+        exit 1
+    fi
 
-    # Switch User
-    su - $Current_User << HERE
+    # Install Oh My Zsh
+    wget -c -t3 -T60 -qO- "https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh" | sh
+    if [[ $? != 0 ]]; then
+        echo -e "\033[31m错误：Oh My Zsh 安装失败\033[0m"
+        exit 1
+    fi
 
-        # Install Oh My Zsh
-        echo ""
-        echo "开始下载 Oh My Zsh..."
-        echo ""
+    color ""
+    color green "安装成功，正在进行配置..."
 
-        wget -c -t3 -T60 -qO- "https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh" | bash
-        if [ $? != 0 ]; then
-            echo "Oh My Zsh 安装失败"
-            exit 1
-        fi
-        echo "安装成功，正在进行配置..."
+    # Setting ~/.zshrc
+    if [[ -f ~/.zshrc ]]; then
+        sed -i 's/^ZSH_THEME=.*/ZSH_THEME="'${Zsh_Theme}'"/' ~/.zshrc
 
-        # Setting ~/.zshrc
-        if [ -f ~/.zshrc ]; then
-            sed -i 's/^ZSH_THEME=.*/ZSH_THEME="$Zsh_Theme"/' ~/.zshrc
-            sed -i -e '/^plugins=[[:space:]]*(/,/^)/s/.*/plugins=($Zsh_Plugins)/p' ~/.zshrc
-            mv ~/.zshrc ~/.zshrc.bak
-            cat ~/.zshrc.bak | uniq > ~/.zshrc
-            rm -f ~/.zshrc.bak # mmp
+        sed -i 's/^plugins=\(.*\)/# plugins=\1/' ~/.zshrc
+        sed -i 's/^source\(.*\)/# source\1/' ~/.zshrc
+        cat >> ~/.zshrc << EOF
 
-            # Fix numeric keypad
-            # https://github.com/robbyrussell/oh-my-zsh/issues/2654
-            cat >> ~/.zshrc << EOF
+plugins=(${Zsh_Plugins})
+
+source \$ZSH/oh-my-zsh.sh
+EOF
+
+        # Fix numeric keypad
+        # https://github.com/robbyrussell/oh-my-zsh/issues/2654
+        cat >> ~/.zshrc << EOF
 
 # Fix numeric keypad
 bindkey -s "^[Op" "0"
@@ -106,43 +107,59 @@ bindkey -s "^[Oj" "*"
 bindkey -s "^[Oo" "/"
 EOF
 
-            # Fix Home / End key
-            # https://github.com/robbyrussell/oh-my-zsh/issues/3061
-            cat >> ~/.zshrc << EOF
+        # Fix Home / End key
+        # https://github.com/robbyrussell/oh-my-zsh/issues/3061
+        cat >> ~/.zshrc << EOF
 
 # Fix Home / End key
 bindkey "\033[1~" beginning-of-line
 bindkey "\033[4~" end-of-line
 EOF
-        fi
+    fi
 
-        echo "===================== Oh My Zsh 安装配置完成 ===================="
-    exit
-HERE
+    color ""
+    color green "===================== Oh My Zsh 安装配置完成 ===================="
 }
+
+# Install Zsh
+function install_zsh() {
+    case ${PM} in
+    yum)
+        yum install -y zsh
+        ;;
+    apt)
+        apt-get install -y zsh
+        ;;
+    esac
+}
+
+# root User Install Zsh
+if [[ ${EUID} == 0 ]]; then
+    install_zsh
+fi
 
 # Show Install Information
 clear
-echo "##########################################################"
-echo "# Auto Install Script for Oh My Zsh                      #"
-echo "# Author: ttionya                                        #"
-echo "##########################################################"
-echo ""
-echo "将安装 Oh My Zsh"
-echo ""
-echo "是否安装？ (y/n)"
+color blue "##########################################################"
+color blue "# Auto Install Script for Oh My Zsh                      #"
+color blue "# Author: ttionya                                        #"
+color blue "##########################################################"
+color ""
+color yellow "将为 $(whoami) 用户安装 Oh My Zsh"
+color ""
+color x "是否安装？ (y/n)"
 read -p "(Default: n):" Check_Install
-if [ -z $Check_Install ]; then
+if [[ -z ${Check_Install} ]]; then
     Check_Install="n"
 fi
 
 # Check Install
-if [[ $Check_Install == y || $Check_Install == Y ]]; then
+if [[ ${Check_Install} == y || ${Check_Install} == Y ]]; then
     main
 else
-    echo ""
-    echo "Oh My Zsh 安装被取消，未作任何更改..."
-    echo ""
+    color ""
+    color blue "Oh My Zsh 安装被取消，未作任何更改..."
+    color ""
 fi
 
 
@@ -161,3 +178,8 @@ fi
 #
 # Ver1.0.4
 # - 添加 Docker Compose 插件支持
+#
+# Ver1.1.0
+# - 添加更多颜色支持
+# - 优化脚本
+# - 修改安装逻辑

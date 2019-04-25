@@ -5,20 +5,6 @@
 - CentOS 7
 - root 用户
 
-#### [install_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_apache.sh)
-
-> Apache Web Server
-
-- Apache 2.4
-- PCRE 1
-- nghttp2
-- OpenSSL 1.1.1
-- 支持 TLS 1.3
-- 支持 HTTP/2
-
-#### [upgrade_apache_http2.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache_http2.sh)
-- 支持 CentOS 6.X / CentOS 7.X、Apache 2.4、PCRE 1、OpenSSL 1.0.2、nghttp2
-
 #### [install_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_php.sh)
 - CentOS 7
 - PHP 7.2
@@ -50,6 +36,31 @@
 
 #### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
 - 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
+
+
+### Web Server
+
+#### [install_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_apache.sh)
+
+> Apache Web Server
+
+- Apache 2.4
+- PCRE 1
+- nghttp2
+- OpenSSL 1.1.1
+- 支持 TLS 1.3
+- 支持 HTTP/2
+
+#### [update_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/update_apache.sh)
+
+> Apache Web Server 升级脚本
+
+- Apache 2.4
+- PCRE 1
+- nghttp2
+- OpenSSL 1.1.1
+- 支持 TLS 1.3
+- 支持 HTTP/2
 
 
 ### 系统

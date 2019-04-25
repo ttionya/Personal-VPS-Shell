@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.2
+# Version: 1.0.3
 # Author: ttionya
 
 yum -y install \
@@ -9,7 +9,7 @@ bison bison-devel bzip2 bzip2-devel \
 cpp curl curl-devel cmake \
 freetype freetype-devel \
 gcc gcc-c++ gd glibc glibc-devel gettext gettext-devel gmp gmp-devel \
-lynx lua-devel libicu-devel libtool libjpeg-devel libpng-devel libxslt-devel libxml2-devel libwebp-devel \
+lynx lua-devel libicu-devel libtool libjpeg-devel libpng-devel libxslt-devel libxml2-devel libwebp-devel libzip-devel \
 make ncurses-devel \
 openldap openldap-devel openssl openssl-devel pam-devel perl-core readline-devel \
 vim wget unzip zip zlib zlib-devel
@@ -19,3 +19,6 @@ vim wget unzip zip zlib zlib-devel
 #
 # Ver1.0.2
 # - 添加测试 OpenSSL 的 PERL 依赖
+#
+# Ver1.0.3
+# - 添加 PHP 7.3 依赖

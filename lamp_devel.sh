@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 yum -y install \
@@ -11,8 +11,11 @@ freetype freetype-devel \
 gcc gcc-c++ gd glibc glibc-devel gettext gettext-devel gmp gmp-devel \
 lynx lua-devel libicu-devel libtool libjpeg-devel libpng-devel libxslt-devel libxml2-devel libwebp-devel \
 make ncurses-devel \
-openldap openldap-devel openssl openssl-devel pam-devel readline-devel \
+openldap openldap-devel openssl openssl-devel pam-devel perl-core readline-devel \
 vim wget unzip zip zlib zlib-devel
 
 # Ver1.0.1
 # - 添加一些 PHP 依赖
+#
+# Ver1.0.2
+# - 添加测试 OpenSSL 的 PERL 依赖

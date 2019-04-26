@@ -5,11 +5,6 @@
 - CentOS 7
 - root 用户
 
-#### [install_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_php.sh)
-- CentOS 7
-- PHP 7.2
-- Apache 2.4
-- PCRE 1
 
 #### [upgrade_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_php.sh)
 - 仅支持 CentOS 6.X、PHP 7.0.X / PHP 7.1.X、Apache 2.4、PCRE 1
@@ -58,6 +53,14 @@
 - OpenSSL 1.1.1
 - 支持 TLS 1.3
 - 支持 HTTP/2
+
+#### [install_php.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_php.sh)
+
+> PHP 脚本语言
+
+- PHP 7.3
+- PCRE 2
+- 支持 ZIP
 
 
 ### 系统

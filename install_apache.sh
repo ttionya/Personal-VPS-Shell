@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Version: 2.0.0
+# Version: 2.0.1
 # Author: ttionya
 
 
@@ -650,8 +650,9 @@ EOF
 <VirtualHost *:80>
     DocumentRoot "${WWW_PATH}/default/"
     ServerName localhost
-    # ProxyRequests Off
-    # ProxyPassMatch ^/(.*\.php(/.*)?)$ unix:/var/run/php-fpm.sock|fcgi://localhost:9000/data/www/default/
+
+#    ProxyRequests Off
+#    ProxyPassMatch ^/(.*\.php(/.*)?)$ unix:/var/run/php-fpm.sock|fcgi://localhost:9000/data/www/default/
 
     <Directory "${WWW_PATH}/default/">
         Options +Includes -Indexes
@@ -842,3 +843,6 @@ fi
 # - 添加 OpenSSL 1.1.1 编译安装以支持 TLS 1.3
 # - 用询问替代强制重新安装依赖
 # - 优化脚本
+#
+# Ver2.0.1
+# - 修改配置文件，以适配 PHP 测试

@@ -34,9 +34,6 @@
 
 #### [install_zstd.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zstd.sh)
 
-#### [upgrade_apache.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_apache.sh)（已废弃）
-- 仅支持 CentOS 6.X、Apache 2.4、PCRE 1
-
 
 ### Web Server
 

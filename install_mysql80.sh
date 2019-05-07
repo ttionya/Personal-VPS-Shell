@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 # https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/
 # https://juejin.im/post/5b6eec2cf265da0f5e3315a6
@@ -67,7 +67,7 @@ function get_version_info() {
     yum makecache fast
 
     # Get Latest MySQL Version
-    LATEST_MYSQL_VERSION=$(yum list --enablerepo=mysql80-community | grep mysql-community-server.x86_64 | awk '{print $2}')
+    LATEST_MYSQL_VERSION=$(yum list --enablerepo=mysql80-community | grep mysql-community-server.x86_64 | awk 'END {print $2}')
 
     if [[ -z ${LATEST_MYSQL_VERSION} ]]; then
         color ""
@@ -290,3 +290,6 @@ fi
 # 修改密码
 # ALTER USER 'root'@'localhost' IDENTIFIED BY 'news_password';
 # ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'news_password';
+
+# Ver1.0.1
+# - 修复读取最新版本读取错误的问题

@@ -62,6 +62,14 @@
 - PCRE 2
 - 支持 ZIP
 
+#### [install_mysql80.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_mysql80.sh)
+
+> MySQL 数据库
+
+- 安装、升级通用
+- MySQL 8.0
+- MySQL Community 8.0 Repo 清华大学源（China）
+
 
 ### 系统
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Version: 2.0.1
+# Version: 2.0.2
 # Author: ttionya
 
 
@@ -507,7 +507,8 @@ function install_apache() {
     --enable-mpms-shared=all \
     --enable-so \
     --enable-ssl \
-    --enable-http2
+    --enable-http2 \
+    --enable-proxy-http2
     if [[ $? != 0 ]]; then
         color ""
         color red "错误：Apache 配置失败"
@@ -604,6 +605,7 @@ EOF
     sed -i 's@^#LoadModule\(.*\)mod_remoteip.so@LoadModule\1mod_remoteip.so@' ${FILE_CONF_HTTPD} # Proxy
     sed -i 's@^#LoadModule\(.*\)mod_proxy.so@LoadModule\1mod_proxy.so@' ${FILE_CONF_HTTPD} # PHP-FPM / Proxy
     sed -i 's@^#LoadModule\(.*\)mod_proxy_http.so@LoadModule\1mod_proxy_http.so@' ${FILE_CONF_HTTPD} # Proxy
+    sed -i 's@^#LoadModule\(.*\)mod_proxy_http2.so@LoadModule\1mod_proxy_http2.so@' ${FILE_CONF_HTTPD} # HTTPS / Proxy
     sed -i 's@^#LoadModule\(.*\)mod_proxy_fcgi.so@LoadModule\1mod_proxy_fcgi.so@' ${FILE_CONF_HTTPD} # PHP-FPM
     sed -i 's@^#LoadModule\(.*\)mod_ssl.so@LoadModule\1mod_ssl.so@' ${FILE_CONF_HTTPD} # HTTPS
     sed -i 's@^#LoadModule\(.*\)mod_http2.so@LoadModule\1mod_http2.so@' ${FILE_CONF_HTTPD} # HTTPS
@@ -846,3 +848,6 @@ fi
 #
 # Ver2.0.1
 # - 修改配置文件，以适配 PHP 测试
+#
+# Ver2.0.2
+# - 添加 mod_proxy_http2 模块支持

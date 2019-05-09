@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Version: 2.0.0
+# Version: 2.0.1
 # Author: ttionya
 
 
@@ -488,7 +488,8 @@ function update_apache() {
     --enable-mpms-shared=all \
     --enable-so \
     --enable-ssl \
-    --enable-http2
+    --enable-http2 \
+    --enable-proxy-http2
     if [[ $? != 0 ]]; then
         color ""
         color red "错误：Apache 配置失败"
@@ -607,3 +608,6 @@ fi
 # - 更新 OpenSSL 1.1.1 编译安装以支持 TLS 1.3
 # - 用询问替代强制重新安装依赖
 # - 优化脚本
+#
+# Ver2.0.1
+# - 添加 mod_proxy_http2 模块支持

@@ -120,7 +120,7 @@
 - EPEL 清华大学源（China）
 
 
-### Repo
+### Repository
 
 #### [repo_epel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh)
 

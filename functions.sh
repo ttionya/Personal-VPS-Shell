@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: ttionya
 
 
@@ -130,3 +130,7 @@ function check_os_version() {
         exit 1
     fi
 }
+
+# v1.0.1
+#
+# - 修复文件换行符问题

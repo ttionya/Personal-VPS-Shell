@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 1.0.1
+# Version: 1.0.2
 # Author: ttionya
 
 
@@ -13,9 +13,15 @@ fi
 
 #################### Variables ####################
 PVS_INIT="TRUE"
-URL_PVS_DEVEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/lamp_devel.sh"
-URL_PVS_ELREPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_elrepo.sh"
-URL_PVS_EPEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh"
+if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
+    URL_PVS_DEVEL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/lamp_devel.sh"
+    URL_PVS_ELREPO="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/repo_elrepo.sh"
+    URL_PVS_EPEL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/repo_epel.sh"
+else
+    URL_PVS_DEVEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/lamp_devel.sh"
+    URL_PVS_ELREPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_elrepo.sh"
+    URL_PVS_EPEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh"
+fi
 
 
 #################### Variables Check ####################
@@ -134,3 +140,7 @@ function check_os_version() {
 # v1.0.1
 #
 # - 修复文件换行符问题
+#
+# v1.0.2
+#
+# - 中国服务器使用 gitee 地址

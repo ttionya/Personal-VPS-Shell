@@ -2,20 +2,18 @@
 #
 # For install ELRepo RPM repository.
 #
-# Version: 2.0.0
+# Version: 2.1.0
 # Author: ttionya
 #
 # Usage:
-#     sh repo_elrepo.sh [--timezone <timezone>] [--china] [-s]
+#     bash repo_elrepo.sh [--timezone <timezone>] [--china] [-s]
 
 
 #################### Custom Setting ####################
 # 日志打印时区（留空使用服务器时区）
 LOG_TIMEZONE=""
-# ELRepo Version
-ELREPO_VERSION="7.0-4"
-# 中国服务器
-CHINA_SERVER="FALSE"
+# 中国镜像
+CHINA_MIRROR="FALSE"
 # 不进行询问
 SILENT="FALSE"
 
@@ -26,17 +24,11 @@ while [[ $# -gt 0 ]]; do
         --timezone)
             shift
             LOG_TIMEZONE="$1"
-
-            # Get correct timezone
-            TIMEZONE_MATCHED_NUM=$(ls "/usr/share/zoneinfo/${LOG_TIMEZONE}" 2> /dev/null | wc -l)
-            if [[ ${TIMEZONE_MATCHED_NUM} -ne 1 ]]; then
-                LOG_TIMEZONE=$(timedatectl | grep 'Time zone' | sed -r 's@^.*\b(\w+/\w+)\b.*$@\1@')
-            fi
             shift
             ;;
         --china)
             shift
-            CHINA_SERVER="TRUE"
+            CHINA_MIRROR="TRUE"
             ;;
         -s)
             shift
@@ -51,130 +43,101 @@ done
 
 #################### Function ####################
 ########################################
-# Print colorful message.
+# Install ELRepo RPM repository.
 # Arguments:
-#     color
-#     message
-# Outputs:
-#     Colorful message
+#     None
 ########################################
-function color() {
-    case $1 in
-        red)     echo -e "\033[31m$2\033[0m" ;;
-        green)   echo -e "\033[32m$2\033[0m" ;;
-        yellow)  echo -e "\033[33m$2\033[0m" ;;
-        blue)    echo -e "\033[34m$2\033[0m" ;;
-        none)    echo $2 ;;
-    esac
-}
-
-########################################
-# Print error message (red).
-# Arguments:
-#     message
-# Outputs:
-#     Error message
-########################################
-function error() {
-    color red "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
-}
-
-########################################
-# Print error message (green).
-# Arguments:
-#     message
-# Outputs:
-#     Success message
-########################################
-function success() {
-    color green "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1"
-}
-
-########################################
-# Print error message (yellow).
-# Arguments:
-#     message
-# Outputs:
-#     Warn message
-########################################
-function warn() {
-    color yellow "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1"
-}
-
-########################################
-# Print error message (blue).
-# Arguments:
-#     message
-# Outputs:
-#     Information message
-########################################
-function info() {
-    color blue "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1"
-}
-
-# Check System Information
-function check_system_info() {
-    # Check root User
-    if [[ "${EUID}" != "0" ]]; then
-        error "该脚本必须以 root 身份运行"
-        exit 1
-    fi
-
-    # Check CentOS Version
-    # CentOS 7.X Only
-    if [[ -s /etc/redhat-release ]]; then
-        SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/redhat-release)"
-    else
-        SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/issue)"
-    fi
-    SYSTEM_VERSION=${SYSTEM_VERSION%%.*}
-    if [[ "${SYSTEM_VERSION}" != "7" ]]; then
-        error "该脚本仅支持 CentOS 7.X 版本"
-        exit 1
-    fi
-}
-
-# Install ELRepo RPM Repository
 function install_elrepo_repository() {
-    color none ""
     color blue "==================== 开始安装 ELRepo RPM Repository ===================="
 
+    # remove old repository
+    if [[ "${REPOSITORY_INSTALLED}" == "TRUE" ]]; then
+        yum -y remove elrepo-release
+    fi
+
+    # install new repository
     rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-    rpm -Uvh --force http://www.elrepo.org/elrepo-release-${ELREPO_VERSION}.el7.elrepo.noarch.rpm
+    yum -y install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
     if [[ $? -ne 0 ]]; then
         error "ELRepo RPM repository 安装失败"
         exit 1
     fi
 
-    # China Server
-    if [[ "${CHINA_SERVER}" == "TRUE" ]]; then
+    color green "==================== 成功安装 ELRepo RPM Repository ===================="
+}
+
+########################################
+# Configure repository china mirror.
+# Arguments:
+#     None
+########################################
+function configure_china_mirror() {
+    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
         sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
         sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
         sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
+
         success "已设置清华大学源作为 ELRepo RPM repository 镜像源"
     fi
-
-    # Result
-    color none ""
-    color green "==================== 成功安装 ELRepo RPM Repository ===================="
-    color none ""
 }
 
-# Check ELRepo RPM Repository Installed
+########################################
+# Configure repository status.
+# Arguments:
+#     None
+########################################
+function configure_repository_status() {
+    yum-config-manager --enable elrepo
+    yum-config-manager --disable elrepo-kernel
+
+    success "已启用 [elrepo] 并禁用 [elrepo-kernel]"
+}
+
+########################################
+# Configure ELRepo RPM repository.
+# Arguments:
+#     None
+########################################
+function configure_main() {
+    color blue "==================== 开始配置 ELRepo RPM Repository ===================="
+
+    # install dependencies
+    yum -y install yum-utils
+
+    configure_china_mirror
+    configure_repository_status
+
+    color green "==================== 成功配置 ELRepo RPM Repository ===================="
+}
+
+########################################
+# Check whether to install the repository.
+# Globals:
+#     REPOSITORY_INSTALLED
+# Arguments:
+#     None
+########################################
 function check_elrepo_repository() {
-    color none ""
+    local NEED_INSTALL_REPOSITORY
+    local READ_REPOSITORY_REINSTALL
 
-    REPOSITORY_INSTALLED_NUM=$(yum list installed | grep -c elrepo-release)
+    # check repository installed
+    local REPOSITORY_INSTALLED_COUNT=$(rpm -qa | grep -c elrepo-release)
+    if [[ ${REPOSITORY_INSTALLED_COUNT} -gt 0 ]]; then
+        REPOSITORY_INSTALLED="TRUE"
+    else
+        REPOSITORY_INSTALLED="FALSE"
+    fi
 
-    if [[ ${REPOSITORY_INSTALLED_NUM} -gt 0 ]]; then
+    if [[ "${REPOSITORY_INSTALLED}" == "TRUE" ]]; then
         if [[ "${SILENT}" == "TRUE" ]]; then
             NEED_INSTALL_REPOSITORY="FALSE"
-            warn "检测到已安装 ELRepo RPM repository，跳过安装"
+            warn "检测到已安装的 ELRepo RPM repository"
         else
             color yellow "重新安装 ELRepo RPM repository ？ (y/N)"
             read -p "(Default: n):" READ_REPOSITORY_REINSTALL
 
-            # Check Reinstall
+            # check reinstall
             if [[ $(echo "${READ_REPOSITORY_REINSTALL:-n}" | tr [a-z] [A-Z]) == "Y" ]]; then
                 NEED_INSTALL_REPOSITORY="TRUE"
             else
@@ -183,31 +146,51 @@ function check_elrepo_repository() {
         fi
     else
         NEED_INSTALL_REPOSITORY="TRUE"
-        warn "检测到未安装 ELRepo RPM repository，即将安装..."
+        warn "未检测到已安装的 ELRepo RPM repository，即将安装..."
     fi
 
     if [[ "${NEED_INSTALL_REPOSITORY}" == "TRUE" ]]; then
         install_elrepo_repository
+        configure_main
     else
-        color none ""
         warn "跳过安装 ELRepo RPM repository"
-        color none ""
     fi
 }
 
 # main
 function main() {
-    check_system_info
+    check_root
+    check_os_version 7
 
     check_elrepo_repository
 }
 
+# dep
+function dep() {
+    local FUNCTION_URL
+
+    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
+        FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+    else
+        FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
+    fi
+
+    source <(curl -s ${FUNCTION_URL})
+    if [[ "${PVS_INIT}" != "TRUE" ]]; then
+        echo "依赖文件下载失败，请重试..."
+        exit 1
+    fi
+}
+
 
 ################### Start ####################
+dep
 main
+
+echo ""
 ################### End ####################
 
-# Ver2.0.0
+# v2.0.0
 #
 # - 优化变量命名方式
 # - 拆分流程到函数中
@@ -215,3 +198,10 @@ main
 # - 优化脚本
 # - 更新 ELRepo RPM Repository 版本
 # - 新增脚本执行参数
+#
+# v2.1.0
+#
+# - 引用外部工具方法
+# - 外部工具方法支持 github 和 gitee
+# - 优化脚本
+# - 启用 elrepo，禁用 elrepo-kernel

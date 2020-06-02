@@ -1,0 +1,17 @@
+name: 'sync'
+
+on:
+  push:
+  delete:
+
+jobs:
+  gitee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ttionya/Repository-Sync-Hub@v1
+        with:
+          target_repository: 'git@gitee.com:ttionya/Personal-VPS-Shell.git'
+          ssh_private_key: ${{ secrets.GITEE_SSH_PRIVATE_KEY }}

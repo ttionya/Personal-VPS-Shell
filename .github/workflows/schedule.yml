@@ -1,8 +1,8 @@
-name: 'sync'
+name: 'schedule'
 
 on:
-  push:
-  delete:
+  schedule:
+    - cron: '0 0,6,12,18 * * *'
 
 jobs:
   gitee:

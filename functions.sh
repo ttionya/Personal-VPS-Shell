@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 1.0.2
+# Version: 1.0.3
 # Author: ttionya
 
 
@@ -123,6 +123,7 @@ function check_root() {
 ########################################
 function check_os_version() {
     local SYSTEM_VERSION
+    local INVALID_ARRAY=()
 
     if [[ -s /etc/redhat-release ]]; then
         SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/redhat-release)"
@@ -131,8 +132,15 @@ function check_os_version() {
     fi
     SYSTEM_VERSION=${SYSTEM_VERSION%%.*}
 
-    if [[ "${SYSTEM_VERSION}" != "$1" ]]; then
-        error "该脚本仅支持 CentOS $1.x 版本"
+    for VERSION in $*
+    do
+        if [[ "${SYSTEM_VERSION}" != "${VERSION}" ]]; then
+            INVALID_ARRAY[${#INVALID_ARRAY[*]}]="${VERSION}.x"
+        fi
+    done
+
+    if [[ ${#*} -eq ${#INVALID_ARRAY[*]} ]]; then
+        error "该脚本仅支持 CentOS ${INVALID_ARRAY[*]} 版本"
         exit 1
     fi
 }
@@ -144,3 +152,7 @@ function check_os_version() {
 # v1.0.2
 #
 # - 中国服务器使用 gitee 地址
+#
+# v1.0.3
+#
+# - 优化系统版本校验脚本，支持同时判断多个系统版本

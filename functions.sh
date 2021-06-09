@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 1.0.3
+# Version: 1.1.0
 # Author: ttionya
 
 
@@ -29,8 +29,8 @@ fi
 # Get correct timezone.
 ########################################
 TIMEZONE_MATCHED_COUNT=$(ls "/usr/share/zoneinfo/${LOG_TIMEZONE}" 2> /dev/null | wc -l)
-if [[ ${TIMEZONE_MATCHED_COUNT} -ne 1 ]]; then
-    LOG_TIMEZONE=$(timedatectl | grep 'Time zone' | sed -r 's@^.*\b(\w+/\w+)\b.*$@\1@')
+if [[ "${TIMEZONE_MATCHED_COUNT}" -ne 1 ]]; then
+    LOG_TIMEZONE=$(timedatectl | grep 'Time zone' | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
 fi
 unset TIMEZONE_MATCHED_COUNT
 
@@ -50,7 +50,7 @@ function color() {
         green)   echo -e "\033[32m$2\033[0m" ;;
         yellow)  echo -e "\033[33m$2\033[0m" ;;
         blue)    echo -e "\033[34m$2\033[0m" ;;
-        none)    echo $2 ;;
+        none)    echo "$2" ;;
     esac
 }
 
@@ -130,19 +130,29 @@ function check_os_version() {
     else
         SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/issue)"
     fi
-    SYSTEM_VERSION=${SYSTEM_VERSION%%.*}
+    SYSTEM_VERSION="${SYSTEM_VERSION%%.*}"
 
     for VERSION in $*
     do
         if [[ "${SYSTEM_VERSION}" != "${VERSION}" ]]; then
-            INVALID_ARRAY[${#INVALID_ARRAY[*]}]="${VERSION}.x"
+            INVALID_ARRAY["${#INVALID_ARRAY[*]}"]="${VERSION}.x"
         fi
     done
 
-    if [[ ${#*} -eq ${#INVALID_ARRAY[*]} ]]; then
+    if [[ "${#*}" -eq "${#INVALID_ARRAY[*]}" ]]; then
         error "该脚本仅支持 CentOS ${INVALID_ARRAY[*]} 版本"
         exit 1
     fi
+}
+
+#################### Function (Other) ####################
+########################################
+# Get the number of CPU cores.
+# Arguments:
+#     None
+########################################
+function get_cpu_number() {
+    CPU_NUMBER=$(cat /proc/cpuinfo | grep -c 'processor')
 }
 
 # v1.0.1
@@ -156,3 +166,9 @@ function check_os_version() {
 # v1.0.3
 #
 # - 优化系统版本校验脚本，支持同时判断多个系统版本
+#
+# v1.1.0
+#
+# - 添加计算 CPU 核心数函数
+# - 优化获得当前时区的方法
+# - 优化代码写法

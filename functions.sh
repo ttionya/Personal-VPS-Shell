@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 1.1.0
+# Version: 2.0.0
 # Author: ttionya
 
 
@@ -13,6 +13,47 @@ fi
 
 #################### Variables ####################
 PVS_INIT="TRUE"
+
+COMMAND=""
+for ARGS_ITEM in $*;
+do
+    case "${ARGS_ITEM}" in
+        --china)
+            CHINA_MIRROR="TRUE"
+            ;;
+        -y)
+            ASSUME_YES="TRUE"
+            ;;
+        *)
+            COMMAND_COUNT=$(echo "${ARGS_ITEM}" | grep -coE "^[0-9a-zA-Z]")
+            if [[ "${COMMAND_COUNT}" == "1" ]]; then
+                if [[ -n "${COMMAND}" ]]; then
+                    echo "参数错误"
+                    exit 1
+                fi
+                COMMAND="${ARGS_ITEM^^}"
+            else
+                KEY=$(echo "${ARGS_ITEM%%=*}" | sed -r 's@-*(.*)@\1@' | sed 's@-@_@') # 左侧内容
+                VALUE="${ARGS_ITEM#*=}" # 右侧内容
+                if [[ "${VALUE^^}" == "YES" || "${VALUE^^}" == "TRUE" ]]; then
+                    VALUE="TRUE"
+                fi
+
+                # 例外 timezone
+                if [[ "${KEY^^}" == "TIMEZONE" ]]; then
+                    export "OPTION_${KEY^^}=${VALUE}"
+                else
+                    export "OPTION_${KEY^^}=${VALUE^^}"
+                fi
+            fi
+
+            unset COMMAND_COUNT
+            unset KEY
+            unset VALUE
+            ;;
+    esac
+done
+
 if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
     URL_PVS_DEVEL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/lamp_devel.sh"
     URL_PVS_ELREPO="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/repo_elrepo.sh"
@@ -28,9 +69,10 @@ fi
 ########################################
 # Get correct timezone.
 ########################################
-TIMEZONE_MATCHED_COUNT=$(ls "/usr/share/zoneinfo/${LOG_TIMEZONE}" 2> /dev/null | wc -l)
+TIMEZONE="${OPTION_TIMEZONE:-"${TIMEZONE}"}"
+TIMEZONE_MATCHED_COUNT=$(ls "/usr/share/zoneinfo/${TIMEZONE}" 2> /dev/null | wc -l)
 if [[ "${TIMEZONE_MATCHED_COUNT}" -ne 1 ]]; then
-    LOG_TIMEZONE=$(timedatectl | grep 'Time zone' | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
+    TIMEZONE=$(timedatectl | grep 'Time zone' | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
 fi
 unset TIMEZONE_MATCHED_COUNT
 
@@ -62,7 +104,7 @@ function color() {
 #     error message
 ########################################
 function error() {
-    color red "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
+    color red "[$(TZ="${TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
 }
 
 ########################################
@@ -73,7 +115,7 @@ function error() {
 #     success message
 ########################################
 function success() {
-    color green "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
+    color green "[$(TZ="${TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
 }
 
 ########################################
@@ -84,7 +126,7 @@ function success() {
 #     warn message
 ########################################
 function warn() {
-    color yellow "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
+    color yellow "[$(TZ="${TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
 }
 
 ########################################
@@ -95,7 +137,7 @@ function warn() {
 #     information message
 ########################################
 function info() {
-    color blue "[$(TZ="${LOG_TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
+    color blue "[$(TZ="${TIMEZONE}" date +'%Y-%m-%d %H:%M:%S')] - $1" >&2
 }
 
 
@@ -145,6 +187,15 @@ function check_os_version() {
     fi
 }
 
+
+#################### Function (Overwrite) ####################
+if [[ "$(type -t main)" != "function" ]]; then
+    function main() {
+        warn "没有找到 main 方法，跳过执行"
+    }
+fi
+
+
 #################### Function (Other) ####################
 ########################################
 # Get the number of CPU cores.
@@ -154,6 +205,17 @@ function check_os_version() {
 function get_cpu_number() {
     CPU_NUMBER=$(cat /proc/cpuinfo | grep -c 'processor')
 }
+
+
+#################### Start ####################
+main $*
+COMMAND="${COMMAND:-"${DEFAULT_COMMAND}"}"
+if [[ "$(type -t "${COMMAND,,}")" == "function" ]]; then
+    ${COMMAND,,} $*
+else
+    error "无效命令: ${COMMAND,,}"
+    exit 1
+fi
 
 # v1.0.1
 #
@@ -172,3 +234,8 @@ function get_cpu_number() {
 # - 添加计算 CPU 核心数函数
 # - 优化获得当前时区的方法
 # - 优化代码写法
+#
+# v2.0.0
+#
+# - 支持解析输入，自动选择执行方法
+# - 支持兜底函数

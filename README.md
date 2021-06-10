@@ -89,7 +89,7 @@
 
 - 安装、升级、卸载
 
-#### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
+#### [pvs_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_zsh.sh)
 
 > 代替 Bash
 

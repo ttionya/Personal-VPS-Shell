@@ -83,11 +83,11 @@
 
 ### 基础软件
 
-#### [install_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_git.sh)
+#### [pvs_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_git.sh)
 
 > Git 版本控制软件
 
-- 安装、升级通用
+- 安装、升级、卸载
 
 #### [install_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_zsh.sh)
 

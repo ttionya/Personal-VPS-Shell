@@ -1,69 +1,40 @@
 #!/usr/bin/env bash
 #
-# For install ELRepo RPM repository.
+# ELRepo RPM repository
 #
-# Version: 2.1.0
+# Version: 3.0.0
 # Author: ttionya
 #
 # Usage:
-#     bash repo_elrepo.sh [--timezone <timezone>] [--china] [-s]
+#     bash repo_elrepo.sh [ install | configure | update | uninstall ] [ [options] | --install-only ]
 
 
 #################### Custom Setting ####################
-# 日志打印时区（留空使用服务器时区）
-LOG_TIMEZONE=""
+DEFAULT_COMMAND="INSTALL"
+# 时区（留空使用服务器时区）
+TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
-# 不进行询问
-SILENT="FALSE"
 
 
 #################### Variables ####################
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-        --timezone)
-            shift
-            LOG_TIMEZONE="$1"
-            shift
-            ;;
-        --china)
-            shift
-            CHINA_MIRROR="TRUE"
-            ;;
-        -s)
-            shift
-            SILENT="TRUE"
-            ;;
-        *)
-            break
-            ;;
-    esac
-done
+ELREPO_CONFIG_FILE="/etc/yum.repos.d/elrepo.repo"
 
 
 #################### Function ####################
 ########################################
-# Install ELRepo RPM repository.
+# Check that ELRepo RPM repository is installed.
 # Arguments:
 #     None
 ########################################
-function install_elrepo_repository() {
-    color blue "==================== 开始安装 ELRepo RPM Repository ===================="
-
-    # remove old repository
-    if [[ "${REPOSITORY_INSTALLED}" == "TRUE" ]]; then
-        yum -y remove elrepo-release
+function check_installed() {
+    local ELREPO_INSTALLED_COUNT=$(rpm -qa | grep -c 'elrepo-release')
+    if [[ "${ELREPO_INSTALLED_COUNT}" != "0" ]]; then
+        ELREPO_INSTALLED="TRUE"
+        return 1
+    else
+        return 0
     fi
-
-    # install new repository
-    rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-    yum -y install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
-    if [[ $? -ne 0 ]]; then
-        error "ELRepo RPM repository 安装失败"
-        exit 1
-    fi
-
-    color green "==================== 成功安装 ELRepo RPM Repository ===================="
 }
 
 ########################################
@@ -73,9 +44,9 @@ function install_elrepo_repository() {
 ########################################
 function configure_china_mirror() {
     if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' /etc/yum.repos.d/elrepo.repo
-        sed -i 's@^\(\thttp.*\)@#\1@' /etc/yum.repos.d/elrepo.repo
-        sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' /etc/yum.repos.d/elrepo.repo
+        sed -i 's@^baseurl=.*\.org/linux/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/elrepo/\1@' "${ELREPO_CONFIG_FILE}"
+        sed -i 's@^\(\thttp.*\)@#\1@' "${ELREPO_CONFIG_FILE}"
+        sed -i 's@^mirrorlist=\(.*\)@#mirrorlist=\1@' "${ELREPO_CONFIG_FILE}"
 
         success "已设置清华大学源作为 ELRepo RPM repository 镜像源"
     fi
@@ -93,67 +64,186 @@ function configure_repository_status() {
     success "已启用 [elrepo] 并禁用 [elrepo-kernel]"
 }
 
-########################################
-# Configure ELRepo RPM repository.
-# Arguments:
-#     None
-########################################
+# install main
+function install_main() {
+    color blue "========================================"
+    info "安装 ELRepo RPM Repository 中..."
+
+    rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+    yum -y install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
+    if [[ $? != 0 ]]; then
+        error "安装 ELRepo RPM repository 失败"
+        exit 1
+    fi
+
+    success "安装 ELRepo RPM repository 成功"
+}
+
+# configure main
 function configure_main() {
-    color blue "==================== 开始配置 ELRepo RPM Repository ===================="
+    color blue "========================================"
+    info "配置 ELRepo RPM Repository 中..."
 
     # install dependencies
     yum -y install yum-utils
+    if [[ $? != 0 ]]; then
+        error "依赖安装失败"
+        exit 1
+    fi
 
     configure_china_mirror
     configure_repository_status
 
-    color green "==================== 成功配置 ELRepo RPM Repository ===================="
+    success "配置 ELRepo RPM Repository 完成"
 }
 
-########################################
-# Check whether to install the repository.
-# Globals:
-#     REPOSITORY_INSTALLED
-# Arguments:
-#     None
-########################################
-function check_elrepo_repository() {
-    local NEED_INSTALL_REPOSITORY
-    local READ_REPOSITORY_REINSTALL
+# update main
+function update_main() {
+    color blue "========================================"
+    info "升级 ELRepo RPM Repository 中..."
 
-    # check repository installed
-    local REPOSITORY_INSTALLED_COUNT=$(rpm -qa | grep -c elrepo-release)
-    if [[ ${REPOSITORY_INSTALLED_COUNT} -gt 0 ]]; then
-        REPOSITORY_INSTALLED="TRUE"
-    else
-        REPOSITORY_INSTALLED="FALSE"
+    yum -y update elrepo-release
+    if [[ $? != 0 ]]; then
+        error "升级 ELRepo RPM Repository 失败"
+        exit 1
     fi
 
-    if [[ "${REPOSITORY_INSTALLED}" == "TRUE" ]]; then
-        if [[ "${SILENT}" == "TRUE" ]]; then
-            NEED_INSTALL_REPOSITORY="FALSE"
-            warn "检测到已安装的 ELRepo RPM repository"
-        else
-            color yellow "重新安装 ELRepo RPM repository ？ (y/N)"
-            read -p "(Default: n):" READ_REPOSITORY_REINSTALL
+    success "升级 ELRepo RPM Repository 完成"
+}
 
-            # check reinstall
-            if [[ $(echo "${READ_REPOSITORY_REINSTALL:-n}" | tr [a-z] [A-Z]) == "Y" ]]; then
-                NEED_INSTALL_REPOSITORY="TRUE"
-            else
-                NEED_INSTALL_REPOSITORY="FALSE"
-            fi
+# uninstall main
+function uninstall_main() {
+    color blue "========================================"
+    info "卸载 ELRepo RPM Repository 中..."
+
+    yum -y remove elrepo-release
+    if [[ $? != 0 ]]; then
+        error "卸载 ELRepo RPM Repository 失败"
+        exit 1
+    fi
+
+    success "卸载 ELRepo RPM Repository 完成"
+}
+
+# install
+function install() {
+    check_installed
+
+    local READ_ELREPO_INSTALL
+
+    if [[ "${ELREPO_INSTALLED}" == "TRUE" ]]; then
+        local INSTALL_TEXT="重新安装"
+
+        # 只允许安装
+        if [[ "${OPTION_INSTALL_ONLY}" == "TRUE" ]]; then
+            warn "检测到已安装 ELRepo RPM Repository，跳过${INSTALL_TEXT}"
+            exit 0
         fi
     else
-        NEED_INSTALL_REPOSITORY="TRUE"
-        warn "未检测到已安装的 ELRepo RPM repository，即将安装..."
+        local INSTALL_TEXT="安装"
     fi
 
-    if [[ "${NEED_INSTALL_REPOSITORY}" == "TRUE" ]]; then
-        install_elrepo_repository
+    clear
+    color blue "##########################################################"
+    color blue "# Auto Install Script for ELRepo RPM Repository"
+    color blue "# Author: ttionya"
+    color blue "##########################################################"
+    color none ""
+    color yellow "将${INSTALL_TEXT} ELRepo RPM Repository"
+    color none ""
+    color yellow "确认${INSTALL_TEXT}？ (y/N)"
+    if [[ "${ASSUME_YES}" == "TRUE" ]]; then
+        READ_ELREPO_INSTALL="y"
+        color none "(Default: n): y"
+    else
+        read -p "(Default: n): " READ_ELREPO_INSTALL
+    fi
+
+    if [[ "${READ_ELREPO_INSTALL^^}" == "Y" ]]; then
+        if [[ "${ELREPO_INSTALLED}" == "TRUE" ]]; then
+            uninstall_main
+        fi
+        install_main
         configure_main
     else
-        warn "跳过安装 ELRepo RPM repository"
+        info "已取消 ELRepo RPM Repository ${INSTALL_TEXT}"
+    fi
+}
+
+# configure
+function configure() {
+    check_installed
+    if [[ $? == 0 ]]; then
+        color yellow "未发现已安装的 ELRepo RPM Repository，你可以使用 install 安装"
+        exit 1
+    fi
+
+    local READ_ELREPO_CONFIGURE
+
+    clear
+    color blue "##########################################################"
+    color blue "# Auto Configure Script for ELRepo RPM Repository"
+    color blue "# Author: ttionya"
+    color blue "##########################################################"
+    color none ""
+    color yellow "将配置 ELRepo RPM Repository"
+    color none ""
+    color yellow "确认配置？ (y/N)"
+    if [[ "${ASSUME_YES}" == "TRUE" ]]; then
+        READ_ELREPO_CONFIGURE="y"
+        color none "(Default: n): y"
+    else
+        read -p "(Default: n): " READ_ELREPO_CONFIGURE
+    fi
+
+    if [[ "${READ_ELREPO_CONFIGURE^^}" == "Y" ]]; then
+        configure_main
+    else
+        info "已取消 ELRepo RPM Repository 配置"
+    fi
+}
+
+# update
+function update() {
+    check_installed
+    if [[ $? == 0 ]]; then
+        color yellow "未发现已安装的 ELRepo RPM Repository，你可以使用 install 安装"
+        exit 1
+    fi
+
+    update_main
+}
+
+# uninstall
+function uninstall() {
+    check_installed
+    if [[ $? == 0 ]]; then
+        color yellow "未发现已安装的 ELRepo RPM Repository"
+        exit 1
+    fi
+
+    local READ_ELREPO_UNINSTALL
+
+    clear
+    color blue "##########################################################"
+    color blue "# Auto Uninstall Script for ELRepo RPM Repository"
+    color blue "# Author: ttionya"
+    color blue "##########################################################"
+    color none ""
+    color yellow "将卸载 ELRepo RPM Repository"
+    color none ""
+    color yellow "确认卸载？ (y/N)"
+    if [[ "${ASSUME_YES}" == "TRUE" ]]; then
+        READ_ELREPO_UNINSTALL="y"
+        color none "(Default: n): y"
+    else
+        read -p "(Default: n): " READ_ELREPO_UNINSTALL
+    fi
+
+    if [[ "${READ_ELREPO_UNINSTALL^^}" == "Y" ]]; then
+        uninstall_main
+    else
+        info "已取消 ELRepo RPM Repository 卸载"
     fi
 }
 
@@ -161,21 +251,21 @@ function check_elrepo_repository() {
 function main() {
     check_root
     check_os_version 7
-
-    check_elrepo_repository
 }
 
 # dep
 function dep() {
-    local FUNCTION_URL
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
 
-    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
-    else
-        FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
-    fi
+    for ARGS_ITEM in $*;
+    do
+        if [[ "${ARGS_ITEM}" == "--china" ]]; then
+            CHINA_MIRROR="TRUE"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+        fi
+    done
 
-    source <(curl -s ${FUNCTION_URL})
+    source <(curl -sS -m 10 --retry 5 "${FUNCTION_URL}")
     if [[ "${PVS_INIT}" != "TRUE" ]]; then
         echo "依赖文件下载失败，请重试..."
         exit 1
@@ -183,12 +273,10 @@ function dep() {
 }
 
 
-################### Start ####################
-dep
-main
+#################### Start ####################
+dep $*
+#################### End ####################
 
-echo ""
-################### End ####################
 
 # v2.0.0
 #
@@ -205,3 +293,7 @@ echo ""
 # - 外部工具方法支持 github 和 gitee
 # - 优化脚本
 # - 启用 elrepo，禁用 elrepo-kernel
+#
+# v3.0.0
+#
+# - 重构脚本

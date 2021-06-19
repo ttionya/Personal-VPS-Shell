@@ -2,7 +2,7 @@
 #
 # kernel-ml with ELRepo RPM repository
 #
-# Version: 3.0.0
+# Version: 3.0.1
 # Author: ttionya
 #
 # Usage:
@@ -29,8 +29,8 @@ BOOT_GRUB_DEFAULT_FILE="/etc/default/grub"
 #     None
 ########################################
 function check_elrepo_installed() {
-    local ELREPO_INSTALLED_COUNT=$(rpm -qa | grep -c 'elrepo-release')
-    if [[ "${ELREPO_INSTALLED_COUNT}" == "0" ]]; then
+    rpm -q "elrepo-release" --quiet
+    if [[ $? != 0 ]]; then
         error "未发现必要依赖 ELRepo RPM Repository"
         exit 1
     fi
@@ -47,7 +47,7 @@ function check_upgrade() {
 
     # kernel version
     KERNEL_VERSION_CURRENT="$(uname -r)"
-    KERNEL_VERSION_LATEST=$(yum --enablerepo=elrepo-kernel list | grep -P '[^@]elrepo-kernel' | grep kernel-ml.x86_64 | awk -F' ' '{ print $2 }')
+    KERNEL_VERSION_LATEST=$(yum --enablerepo=elrepo-kernel list | grep -P "[^@]elrepo-kernel" | grep kernel-ml.x86_64 | awk -F' ' '{ print $2 }')
 
     # latest version
     if [[ -z "${KERNEL_VERSION_LATEST}" ]]; then
@@ -142,9 +142,7 @@ function uninstall_main() {
     color blue "========================================"
     info "卸载旧内核中..."
 
-    rpm -e --nodeps kernel-headers
-    rpm -e --nodeps kernel-tools
-    rpm -e --nodeps kernel-tools-libs
+    rpm -e --nodeps kernel-headers kernel-tools kernel-tools-libs
     rpm -qa | grep "kernel-ml" | grep -v "$(uname -r)" | xargs -I {} yum -y remove {}
     if [[ $? != 0 ]]; then
         error "卸载旧内核失败"
@@ -313,3 +311,7 @@ dep $*
 # v3.0.0
 #
 # - 重构脚本
+#
+# v3.0.1
+#
+# - 优化判断 RPM 包是否安装的逻辑

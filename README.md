@@ -73,7 +73,7 @@
 
 ### 系统
 
-#### [upgrade_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/upgrade_kernel.sh)
+#### [pvs_kernel.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_kernel.sh)
 
 > 升级内核到最新版本  
 > **请勿在生产环境使用**

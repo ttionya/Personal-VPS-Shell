@@ -2,7 +2,7 @@
 #
 # ELRepo RPM repository
 #
-# Version: 3.0.1
+# Version: 3.1.0
 # Author: ttionya
 #
 # Usage:
@@ -67,10 +67,10 @@ function configure_repository_status() {
 # install main
 function install_main() {
     color blue "========================================"
-    info "安装 ELRepo RPM Repository 中..."
+    info "安装 ELRepo RPM repository 中..."
 
     rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-    yum -y install https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm
+    yum -y install "https://www.elrepo.org/elrepo-release-${SYSTEM_MAJOR_VERSION}.el${SYSTEM_MAJOR_VERSION}.elrepo.noarch.rpm"
     if [[ $? != 0 ]]; then
         error "安装 ELRepo RPM repository 失败"
         exit 1
@@ -82,7 +82,7 @@ function install_main() {
 # configure main
 function configure_main() {
     color blue "========================================"
-    info "配置 ELRepo RPM Repository 中..."
+    info "配置 ELRepo RPM repository 中..."
 
     # install dependencies
     yum -y install yum-utils
@@ -94,35 +94,37 @@ function configure_main() {
     configure_china_mirror
     configure_repository_status
 
-    success "配置 ELRepo RPM Repository 完成"
+    success "配置 ELRepo RPM repository 完成"
 }
 
 # update main
 function update_main() {
     color blue "========================================"
-    info "升级 ELRepo RPM Repository 中..."
+    info "升级 ELRepo RPM repository 中..."
 
     yum -y update elrepo-release
     if [[ $? != 0 ]]; then
-        error "升级 ELRepo RPM Repository 失败"
+        error "升级 ELRepo RPM repository 失败"
         exit 1
     fi
 
-    success "升级 ELRepo RPM Repository 完成"
+    success "升级 ELRepo RPM repository 完成"
 }
 
 # uninstall main
 function uninstall_main() {
     color blue "========================================"
-    info "卸载 ELRepo RPM Repository 中..."
+    info "卸载 ELRepo RPM repository 中..."
 
     yum -y remove elrepo-release
     if [[ $? != 0 ]]; then
-        error "卸载 ELRepo RPM Repository 失败"
+        error "卸载 ELRepo RPM repository 失败"
         exit 1
     fi
 
-    success "卸载 ELRepo RPM Repository 完成"
+    yum clean all
+
+    success "卸载 ELRepo RPM repository 完成"
 }
 
 # install
@@ -130,17 +132,16 @@ function install() {
     check_installed
 
     local READ_ELREPO_INSTALL
+    local INSTALL_TEXT="安装"
 
     if [[ "${ELREPO_INSTALLED}" == "TRUE" ]]; then
-        local INSTALL_TEXT="重新安装"
+        INSTALL_TEXT="重新安装"
 
         # 只允许安装
         if [[ "${OPTION_INSTALL_ONLY}" == "TRUE" ]]; then
-            warn "检测到已安装 ELRepo RPM Repository，跳过${INSTALL_TEXT}"
+            warn "检测到已安装 ELRepo RPM repository，跳过${INSTALL_TEXT}"
             exit 0
         fi
-    else
-        local INSTALL_TEXT="安装"
     fi
 
     clear
@@ -149,7 +150,7 @@ function install() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将${INSTALL_TEXT} ELRepo RPM Repository"
+    color yellow "将${INSTALL_TEXT} ELRepo RPM repository"
     color none ""
     color yellow "确认${INSTALL_TEXT}？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -166,7 +167,7 @@ function install() {
         install_main
         configure_main
     else
-        info "已取消 ELRepo RPM Repository ${INSTALL_TEXT}"
+        info "已取消 ELRepo RPM repository ${INSTALL_TEXT}"
     fi
 }
 
@@ -174,7 +175,7 @@ function install() {
 function configure() {
     check_installed
     if [[ $? == 0 ]]; then
-        color yellow "未发现已安装的 ELRepo RPM Repository，你可以使用 install 安装"
+        color yellow "未发现已安装的 ELRepo RPM repository，你可以使用 install 安装"
         exit 1
     fi
 
@@ -186,7 +187,7 @@ function configure() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将配置 ELRepo RPM Repository"
+    color yellow "将配置 ELRepo RPM repository"
     color none ""
     color yellow "确认配置？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -199,7 +200,7 @@ function configure() {
     if [[ "${READ_ELREPO_CONFIGURE^^}" == "Y" ]]; then
         configure_main
     else
-        info "已取消 ELRepo RPM Repository 配置"
+        info "已取消 ELRepo RPM repository 配置"
     fi
 }
 
@@ -207,7 +208,7 @@ function configure() {
 function update() {
     check_installed
     if [[ $? == 0 ]]; then
-        color yellow "未发现已安装的 ELRepo RPM Repository，你可以使用 install 安装"
+        color yellow "未发现已安装的 ELRepo RPM repository，你可以使用 install 安装"
         exit 1
     fi
 
@@ -218,7 +219,7 @@ function update() {
 function uninstall() {
     check_installed
     if [[ $? == 0 ]]; then
-        color yellow "未发现已安装的 ELRepo RPM Repository"
+        color yellow "未发现已安装的 ELRepo RPM repository"
         exit 1
     fi
 
@@ -230,7 +231,7 @@ function uninstall() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将卸载 ELRepo RPM Repository"
+    color yellow "将卸载 ELRepo RPM repository"
     color none ""
     color yellow "确认卸载？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -243,14 +244,14 @@ function uninstall() {
     if [[ "${READ_ELREPO_UNINSTALL^^}" == "Y" ]]; then
         uninstall_main
     else
-        info "已取消 ELRepo RPM Repository 卸载"
+        info "已取消 ELRepo RPM repository 卸载"
     fi
 }
 
 # main
 function main() {
     check_root
-    check_os_version 7
+    check_os_version 7 8
 }
 
 # dep
@@ -301,3 +302,9 @@ dep $*
 # v3.0.1
 #
 # - 优化判断 RPM 包是否安装的逻辑
+#
+# v3.1.0
+#
+# - 支持 CentOS 8
+# - 统一文案
+# - 卸载 repository 后清除缓存

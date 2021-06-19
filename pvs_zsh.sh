@@ -2,11 +2,11 @@
 #
 # Oh My Zsh
 #
-# Version: 2.0.0
+# Version: 2.1.0
 # Author: ttionya
 #
 # Usage:
-#     bash pvs_omz.sh [ install ] [options]
+#     bash pvs_omz.sh [ install ] [ [options] ]
 
 
 #################### Custom Setting ####################
@@ -95,14 +95,14 @@ function install_zsh() {
         YUM)
             yum install -y zsh
             if [[ $? != 0 ]]; then
-                error "依赖安装失败"
+                error "Zsh 安装失败"
                 exit 1
             fi
             ;;
         APT)
             apt-get install -y zsh
             if [[ $? != 0 ]]; then
-                error "依赖安装失败"
+                error "Zsh 安装失败"
                 exit 1
             fi
             ;;
@@ -119,11 +119,11 @@ function install_main() {
     # install
     wget -c -t3 -T60 -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash
     if [[ $? != 0 ]]; then
-        error "Oh My Zsh 安装失败"
+        error "安装 Oh My Zsh 失败"
         exit 1
     fi
 
-    success "Oh My Zsh 安装成功"
+    success "安装 Oh My Zsh 成功"
 }
 
 # configure main
@@ -281,7 +281,7 @@ function update() {
 function uninstall() {
     check_installed
     if [[ $? == 0 ]]; then
-        color yellow "未发现已安装的 Oh My Zsh，你可以使用 install 安装"
+        color yellow "未发现已安装的 Oh My Zsh"
         exit 1
     fi
 
@@ -302,15 +302,17 @@ function main() {
 
 # dep
 function dep() {
-    local FUNCTION_URL
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
 
-    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
-    else
-        FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
-    fi
+    for ARGS_ITEM in $*;
+    do
+        if [[ "${ARGS_ITEM}" == "--china" ]]; then
+            CHINA_MIRROR="TRUE"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+        fi
+    done
 
-    source <(curl -s "${FUNCTION_URL}")
+    source <(curl -sS -m 10 --retry 5 "${FUNCTION_URL}")
     if [[ "${PVS_INIT}" != "TRUE" ]]; then
         echo "依赖文件下载失败，请重试..."
         exit 1
@@ -321,6 +323,7 @@ function dep() {
 #################### Start ####################
 dep $*
 #################### End ####################
+
 
 # v1.0.1
 #
@@ -348,3 +351,8 @@ dep $*
 # v2.0.0
 #
 # - 重构脚本
+#
+# v2.1.0
+#
+# - 修改文案
+# - 优化 dep

@@ -2,11 +2,11 @@
 #
 # Git
 #
-# Version: 2.0.0
+# Version: 2.1.0
 # Author: ttionya
 #
 # Usage:
-#     bash pvs_git.sh [ install | update | uninstall ] [options]
+#     bash pvs_git.sh [ install | update | uninstall ] [ [options] ]
 
 
 #################### Custom Setting ####################
@@ -129,7 +129,7 @@ function install_main() {
     cd "${SRC_DIR}"
     rm -rf "${GIT_SRC_DIR}"
 
-    success "编译安装 Git 完成"
+    success "编译安装 Git 成功"
 }
 
 # uninstall main
@@ -255,15 +255,17 @@ function main() {
 
 # dep
 function dep() {
-    local FUNCTION_URL
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
 
-    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
-    else
-        FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
-    fi
+    for ARGS_ITEM in $*;
+    do
+        if [[ "${ARGS_ITEM}" == "--china" ]]; then
+            CHINA_MIRROR="TRUE"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+        fi
+    done
 
-    source <(curl -s "${FUNCTION_URL}")
+    source <(curl -sS -m 10 --retry 5 "${FUNCTION_URL}")
     if [[ "${PVS_INIT}" != "TRUE" ]]; then
         echo "依赖文件下载失败，请重试..."
         exit 1
@@ -274,6 +276,7 @@ function dep() {
 #################### Start ####################
 dep $*
 #################### End ####################
+
 
 # v1.0.1
 #
@@ -288,3 +291,7 @@ dep $*
 # v2.0.0
 #
 # - 重构脚本
+#
+# v2.1.0
+#
+# - 优化 dep

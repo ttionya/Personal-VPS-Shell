@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 2.1.0
+# Version: 2.2.0
 # Author: ttionya
 
 
@@ -80,7 +80,7 @@ fi
 TIMEZONE="${OPTION_TIMEZONE:-"${TIMEZONE}"}"
 TIMEZONE_MATCHED_COUNT=$(ls "/usr/share/zoneinfo/${TIMEZONE}" 2> /dev/null | wc -l)
 if [[ "${TIMEZONE_MATCHED_COUNT}" -ne 1 ]]; then
-    TIMEZONE=$(timedatectl | grep 'Time zone' | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
+    TIMEZONE=$(timedatectl | grep "Time zone" | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
 fi
 unset TIMEZONE_MATCHED_COUNT
 
@@ -180,12 +180,12 @@ function check_os_version() {
     else
         SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/issue)"
     fi
-    SYSTEM_VERSION="${SYSTEM_VERSION%%.*}"
+    SYSTEM_MAJOR_VERSION="${SYSTEM_VERSION%%.*}"
 
-    for VERSION in $*
+    for MAJOR_VERSION in $*
     do
-        if [[ "${SYSTEM_VERSION}" != "${VERSION}" ]]; then
-            INVALID_ARRAY["${#INVALID_ARRAY[*]}"]="${VERSION}.x"
+        if [[ "${SYSTEM_MAJOR_VERSION}" != "${MAJOR_VERSION}" ]]; then
+            INVALID_ARRAY["${#INVALID_ARRAY[*]}"]="${MAJOR_VERSION}.x"
         fi
     done
 
@@ -211,7 +211,7 @@ fi
 #     None
 ########################################
 function get_cpu_number() {
-    CPU_NUMBER=$(grep -c 'processor' /proc/cpuinfo)
+    CPU_NUMBER=$(grep -c "processor" /proc/cpuinfo)
 }
 
 
@@ -254,3 +254,7 @@ fi
 #
 # - 处理参数格式化问题
 # - 优化获得 CPU 核心数方法
+#
+# v2.2.0
+#
+# - 暴露系统主要版本全局变量

@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 2.0.0
+# Version: 2.1.0
 # Author: ttionya
 
 
@@ -26,28 +26,36 @@ do
             ;;
         *)
             COMMAND_COUNT=$(echo "${ARGS_ITEM}" | grep -coE "^[0-9a-zA-Z]")
+            OPTIONS_COUNT=$(echo "${ARGS_ITEM}" | grep -coE "^-")
             if [[ "${COMMAND_COUNT}" == "1" ]]; then
                 if [[ -n "${COMMAND}" ]]; then
                     echo "参数错误"
                     exit 1
                 fi
                 COMMAND="${ARGS_ITEM^^}"
-            else
+            elif [[ "${OPTIONS_COUNT}" == "1" ]]; then
                 KEY=$(echo "${ARGS_ITEM%%=*}" | sed -r 's@-*(.*)@\1@' | sed 's@-@_@') # 左侧内容
                 VALUE="${ARGS_ITEM#*=}" # 右侧内容
-                if [[ "${VALUE^^}" == "YES" || "${VALUE^^}" == "TRUE" ]]; then
+
+                # 支持 (-)+option (-)+option=value 等各种松散方案
+                EQUAL_COUNT=$(echo "${ARGS_ITEM}" | grep -c "=")
+                if [[ "${EQUAL_COUNT}" != "1" ]]; then
                     VALUE="TRUE"
                 fi
 
-                # 例外 timezone
-                if [[ "${KEY^^}" == "TIMEZONE" ]]; then
-                    export "OPTION_${KEY^^}=${VALUE}"
-                else
-                    export "OPTION_${KEY^^}=${VALUE^^}"
+                if [[ "${VALUE^^}" == "TRUE" ]]; then
+                    VALUE="TRUE"
                 fi
+
+                export "OPTION_${KEY^^}=${VALUE}"
+            else
+                echo "参数错误"
+                exit 1
             fi
 
             unset COMMAND_COUNT
+            unset OPTIONS_COUNT
+            unset EQUAL_COUNT
             unset KEY
             unset VALUE
             ;;
@@ -203,7 +211,7 @@ fi
 #     None
 ########################################
 function get_cpu_number() {
-    CPU_NUMBER=$(cat /proc/cpuinfo | grep -c 'processor')
+    CPU_NUMBER=$(grep -c 'processor' /proc/cpuinfo)
 }
 
 
@@ -216,6 +224,8 @@ else
     error "无效命令: ${COMMAND,,}"
     exit 1
 fi
+#################### End ####################
+
 
 # v1.0.1
 #
@@ -239,3 +249,8 @@ fi
 #
 # - 支持解析输入，自动选择执行方法
 # - 支持兜底函数
+#
+# v2.1.0
+#
+# - 处理参数格式化问题
+# - 优化获得 CPU 核心数方法

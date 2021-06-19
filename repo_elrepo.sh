@@ -2,7 +2,7 @@
 #
 # ELRepo RPM repository
 #
-# Version: 3.0.0
+# Version: 3.0.1
 # Author: ttionya
 #
 # Usage:
@@ -28,8 +28,8 @@ ELREPO_CONFIG_FILE="/etc/yum.repos.d/elrepo.repo"
 #     None
 ########################################
 function check_installed() {
-    local ELREPO_INSTALLED_COUNT=$(rpm -qa | grep -c 'elrepo-release')
-    if [[ "${ELREPO_INSTALLED_COUNT}" != "0" ]]; then
+    rpm -q "elrepo-release" --quiet
+    if [[ $? == 0 ]]; then
         ELREPO_INSTALLED="TRUE"
         return 1
     else
@@ -297,3 +297,7 @@ dep $*
 # v3.0.0
 #
 # - 重构脚本
+#
+# v3.0.1
+#
+# - 优化判断 RPM 包是否安装的逻辑

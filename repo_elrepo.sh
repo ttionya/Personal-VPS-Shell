@@ -2,7 +2,7 @@
 #
 # ELRepo RPM repository
 #
-# Version: 3.1.0
+# Version: 3.1.1
 # Author: ttionya
 #
 # Usage:
@@ -101,6 +101,9 @@ function configure_main() {
 function update_main() {
     color blue "========================================"
     info "升级 ELRepo RPM repository 中..."
+
+    yum clean all
+    yum makecache
 
     yum -y update elrepo-release
     if [[ $? != 0 ]]; then
@@ -308,3 +311,7 @@ dep $*
 # - 支持 CentOS 8
 # - 统一文案
 # - 卸载 repository 后清除缓存
+#
+# v3.1.1
+#
+# - 安装操作前清空 YUM 缓存

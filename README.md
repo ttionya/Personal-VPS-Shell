@@ -85,21 +85,17 @@
 
 #### [pvs_git.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_git.sh)
 
-> Git 版本控制软件
-
-- 安装、升级、卸载
+> 版本控制软件
 
 #### [pvs_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_zsh.sh)
 
 > 代替 Bash
 
-#### [install_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_docker_ce.sh)
+#### [pvs_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/pvs_docker_ce.sh)
 
-> Docker 和 Docker Compose
+> Docker CE 和 Docker Compose
 
-- 安装、升级通用
-- Docker 阿里源（China）
-- Docker Images 国内镜像（China）
+- Docker Registry 网易云、百度源（China）
 - Docker Compose DaoCloud 下载（China）
 
 #### [install_nodesource.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/install_nodesource.sh)

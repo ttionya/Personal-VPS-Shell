@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 2.1.0
+# Version: 2.1.1
 # Author: ttionya
 #
 # Usage:
@@ -53,7 +53,7 @@ function install_dependencies() {
     color blue "========================================"
     info "依赖安装中..."
 
-    yum -y install autoconf curl-devel expat-devel gcc gcc-c++ perl-ExtUtils-MakeMaker zlib-devel
+    yum -y install autoconf curl-devel diffutils expat-devel gcc gcc-c++ gettext make wget zlib-devel
     if [[ $? != 0 ]]; then
         error "依赖安装失败"
         exit 1
@@ -87,7 +87,7 @@ function install_main() {
     # configure
     cd "${GIT_SRC_DIR}"
     make configure
-    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=1 NO_GETTEXT=1
+    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=YesPlease
     if [[ $? != 0 ]]; then
         error "Git 配置失败"
         exit 1
@@ -295,3 +295,7 @@ dep $*
 # v2.1.0
 #
 # - 优化 dep
+#
+# v2.1.1
+#
+# - 优化依赖，移除非必要依赖

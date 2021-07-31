@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 2.1.1
+# Version: 2.1.2
 # Author: ttionya
 #
 # Usage:
@@ -23,8 +23,8 @@ INSTALL_GIT_PATH="/usr/local/git"
 
 #################### Variables ####################
 SRC_DIR="/usr/local/src"
-GIT_SRC_FILE="git-${GIT_VERSION}.tar.gz"
-GIT_SRC_DIR="git-${GIT_VERSION}"
+GIT_SRC_FILE="${SRC_DIR}/git-${GIT_VERSION}.tar.gz"
+GIT_SRC_DIR="${SRC_DIR}/git-${GIT_VERSION}"
 GIT_BIN="${INSTALL_GIT_PATH}/bin/git"
 GIT_BAK="${INSTALL_GIT_PATH}.bak"
 
@@ -299,3 +299,7 @@ dep $*
 # v2.1.1
 #
 # - 优化依赖，移除非必要依赖
+#
+# v2.1.2
+#
+# - 使用绝对路径

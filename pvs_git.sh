@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 2.1.2
+# Version: 2.2.0
 # Author: ttionya
 #
 # Usage:
@@ -16,7 +16,7 @@ TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
 # Git 版本号
-GIT_VERSION="2.32.0"
+GIT_VERSION="2.37.3"
 # Git 安装路径
 INSTALL_GIT_PATH="/usr/local/git"
 
@@ -37,7 +37,7 @@ GIT_BAK="${INSTALL_GIT_PATH}.bak"
 ########################################
 function check_installed() {
     if command -v "${GIT_BIN}" > /dev/null 2>&1; then
-        GIT_VERSION_INSTALLED=$("${GIT_BIN}" --version | grep -oE "[0-9.]+")
+        GIT_VERSION_INSTALLED="$("${GIT_BIN}" --version | grep -oE "[0-9.]+")"
         return 1
     else
         return 0
@@ -54,7 +54,7 @@ function install_dependencies() {
     info "依赖安装中..."
 
     yum -y install autoconf curl-devel diffutils expat-devel gcc gcc-c++ gettext make wget zlib-devel
-    if [[ $? != 0 ]]; then
+    if [[ $? -ne 0 ]]; then
         error "依赖安装失败"
         exit 1
     fi
@@ -73,7 +73,7 @@ function install_main() {
     # download
     if [[ ! -s "${GIT_SRC_FILE}" ]]; then
         wget -c -t3 -T60 "https://github.com/git/git/archive/v${GIT_VERSION}.tar.gz" -O "${GIT_SRC_FILE}"
-        if [[ $? != 0 ]]; then
+        if [[ $? -ne 0 ]]; then
             error "Git 下载失败"
             rm -rf "${GIT_SRC_FILE}"
             exit 1
@@ -86,14 +86,21 @@ function install_main() {
 
     # configure
     cd "${GIT_SRC_DIR}"
+
+	local CFLAGS=""
+	if [[ "${SYSTEM_MAJOR_VERSION}" -eq 7 ]]; then
+		# https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/5948/diffs
+		CFLAGS="-std=gnu99"
+	fi
+
     make configure
-    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=YesPlease
-    if [[ $? != 0 ]]; then
+    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=YesPlease CFLAGS="${CFLAGS}"
+    if [[ $? -ne 0 ]]; then
         error "Git 配置失败"
         exit 1
     fi
     make all -j "${CPU_NUMBER}"
-    if [[ $? != 0 ]]; then
+    if [[ $? -ne 0 ]]; then
         error "Git 编译失败"
         make clean
         exit 1
@@ -102,7 +109,7 @@ function install_main() {
     if [[ "${COMMAND}" == "INSTALL" ]]; then # INSTALL
         # install
         make install
-        if [[ $? != 0 ]]; then
+        if [[ $? -ne 0 ]]; then
             error "Git 安装失败"
             rm -rf "${INSTALL_GIT_PATH}"
             exit 1
@@ -114,7 +121,7 @@ function install_main() {
 
         # install
         make install
-        if [[ $? != 0 ]]; then
+        if [[ $? -ne 0 ]]; then
             error "Git 安装失败"
             rm -rf "${INSTALL_GIT_PATH}"
             mv "${GIT_BAK}" "${INSTALL_GIT_PATH}"
@@ -145,7 +152,7 @@ function uninstall_main() {
 # install
 function install() {
     check_installed
-    if [[ $? == 1 ]]; then
+    if [[ $? -eq 1 ]]; then
         color yellow "发现已安装的 Git，你可以："
         color yellow "1. 使用 update 升级版本"
         color yellow "2. 使用 uninstall 卸载后重新使用 install 安装"
@@ -181,7 +188,7 @@ function install() {
 # update
 function update() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ $? -eq 0 ]]; then
         color yellow "未发现已安装的 Git，你可以使用 install 安装"
         exit 1
     fi
@@ -215,7 +222,7 @@ function update() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ $? -eq 0 ]]; then
         color yellow "未发现已安装的 Git"
         exit 1
     fi
@@ -248,7 +255,7 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 7 8
+    check_os_version 7 8 9
 
     get_cpu_number
 }
@@ -294,7 +301,7 @@ dep $*
 #
 # v2.1.0
 #
-# - 优化 dep
+# - 优化依赖
 #
 # v2.1.1
 #
@@ -303,3 +310,9 @@ dep $*
 # v2.1.2
 #
 # - 使用绝对路径
+#
+# v2.2.0
+#
+# - 更新 Git 安装版本
+# - 修复 CentOS 7 安装报错问题
+# - 支持 CentOS 9

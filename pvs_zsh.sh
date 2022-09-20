@@ -2,7 +2,7 @@
 #
 # Oh My Zsh
 #
-# Version: 2.1.0
+# Version: 2.1.1
 # Author: ttionya
 #
 # Usage:
@@ -18,7 +18,7 @@ CHINA_MIRROR="FALSE"
 # Zsh Theme (https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
 OMZ_THEME="ys"
 # Zsh Plugins (https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins)
-OMZ_PLUGINS="cp docker docker-compose encode64 extract firewalld git golang grunt gulp history man node npm npx nvm perl pip python redis-cli rsync screen sudo systemd vscode yarn yum z"
+OMZ_PLUGINS="cp docker docker-compose encode64 extract firewalld git golang grunt gulp history man node npm nvm pip pm2 python redis-cli rsync rust screen sudo systemd vscode yarn yum z"
 
 
 #################### Variables ####################
@@ -93,15 +93,15 @@ function install_zsh() {
 
     case "${PACKAGE_MANAGER}" in
         YUM)
-            yum install -y zsh
-            if [[ $? != 0 ]]; then
+            yum -y install zsh
+            if [[ $? -ne 0 ]]; then
                 error "Zsh 安装失败"
                 exit 1
             fi
             ;;
         APT)
-            apt-get install -y zsh
-            if [[ $? != 0 ]]; then
+            apt-get -y install zsh
+            if [[ $? -ne 0 ]]; then
                 error "Zsh 安装失败"
                 exit 1
             fi
@@ -118,7 +118,7 @@ function install_main() {
 
     # install
     wget -c -t3 -T60 -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash
-    if [[ $? != 0 ]]; then
+    if [[ $? -ne 0 ]]; then
         error "安装 Oh My Zsh 失败"
         exit 1
     fi
@@ -142,17 +142,17 @@ function configure_main() {
 
         # plugins
         sed -i 's@^plugins=@# plugins=@' "${OMZ_CONFIG_FILE}"
-        LINE_NUMBER=$(sed -n '/# plugins=/=' "${OMZ_CONFIG_FILE}" | tail -n 1)
+        LINE_NUMBER="$(sed -n '/# plugins=/=' "${OMZ_CONFIG_FILE}" | tail -n 1)"
         sed -i "${LINE_NUMBER}"'a\plugins=('"${OMZ_PLUGINS}"')' "${OMZ_CONFIG_FILE}"
 
         # language
         sed -i 's@^export LANG=@# export LANG=@' "${OMZ_CONFIG_FILE}"
-        LINE_NUMBER=$(sed -n '/# export LANG=/=' "${OMZ_CONFIG_FILE}" | tail -n 1)
+        LINE_NUMBER="$(sed -n '/# export LANG=/=' "${OMZ_CONFIG_FILE}" | tail -n 1)"
         sed -i "${LINE_NUMBER}"'a\export LANG=en_US.UTF-8' "${OMZ_CONFIG_FILE}"
 
         # Fix numeric keypad
         # https://github.com/robbyrussell/oh-my-zsh/issues/2654
-        if [[ $(grep -c 'Fix numeric keypad' "${OMZ_CONFIG_FILE}") == "0" ]]; then
+        if [[ "$(grep -c 'Fix numeric keypad' "${OMZ_CONFIG_FILE}")" -eq 0 ]]; then
             cat >> "${OMZ_CONFIG_FILE}" << EOF
 
 # Fix numeric keypad
@@ -177,8 +177,8 @@ EOF
 
         # Fix Home / End key
         # https://github.com/robbyrussell/oh-my-zsh/issues/3061
-        if [[ $(grep -c '# Fix Home / End key' "${OMZ_CONFIG_FILE}") == "0" ]]; then
-            cat >> ~/.zshrc << EOF
+        if [[ "$(grep -c '# Fix Home / End key' "${OMZ_CONFIG_FILE}")" -eq 0 ]]; then
+            cat >> "${OMZ_CONFIG_FILE}" << EOF
 
 # Fix Home / End key
 bindkey "\033[1~" beginning-of-line
@@ -193,7 +193,7 @@ EOF
 # install
 function install() {
     check_installed
-    if [[ $? == 1 ]]; then
+    if [[ $? -eq 1 ]]; then
         color yellow "发现已安装的 Oh My Zsh，你可以："
         color yellow "1. 使用 omz update 升级版本"
         color yellow "2. 使用 uninstall_oh_my_zsh 卸载后重新使用 install 安装"
@@ -221,7 +221,7 @@ function install() {
     fi
 
     if [[ "${READ_OMZ_INSTALL^^}" == "Y" ]]; then
-        if [[ "${EUID}" == "0" ]]; then
+        if [[ "${EUID}" -eq 0 ]]; then
             install_zsh
         fi
         install_main
@@ -234,7 +234,7 @@ function install() {
 # configure
 function configure() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ $? -eq 0 ]]; then
         color yellow "未发现已安装的 Oh My Zsh，你可以使用 install 安装"
         exit 1
     fi
@@ -269,7 +269,7 @@ function configure() {
 # update
 function update() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ $? -eq 0 ]]; then
         color yellow "未发现已安装的 Oh My Zsh，你可以使用 install 安装"
         exit 1
     fi
@@ -280,7 +280,7 @@ function update() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ $? -eq 0 ]]; then
         color yellow "未发现已安装的 Oh My Zsh"
         exit 1
     fi
@@ -291,11 +291,12 @@ function uninstall() {
 # main
 function main() {
     check_zsh_installed
-    if [[ $? == 0 ]]; then
-        if [[ "${EUID}" != "0" ]]; then
+    if [[ $? -eq 0 ]]; then
+        if [[ "${EUID}" -ne 0 ]]; then
             error "该脚本必须以 root 权限运行安装 Zsh"
             exit 1
         fi
+
         check_package_manager
     fi
 }
@@ -355,4 +356,9 @@ dep $*
 # v2.1.0
 #
 # - 修改文案
-# - 优化 dep
+# - 优化依赖
+#
+# v2.1.1
+#
+# - 修改插件
+# - 优化脚本

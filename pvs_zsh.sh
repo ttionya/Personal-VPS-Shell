@@ -2,11 +2,11 @@
 #
 # Oh My Zsh
 #
-# Version: 2.1.1
+# Version: 3.0.0
 # Author: ttionya
 #
 # Usage:
-#     bash pvs_omz.sh [ install ] [ [options] ]
+#     bash pvs_omz.sh [ install | configure | update | uninstall ] [ [options] ]
 
 
 #################### Custom Setting ####################
@@ -18,7 +18,7 @@ CHINA_MIRROR="FALSE"
 # Zsh Theme (https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
 OMZ_THEME="ys"
 # Zsh Plugins (https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins)
-OMZ_PLUGINS="cp docker docker-compose encode64 extract firewalld git golang grunt gulp history man node npm nvm pip pm2 python redis-cli rsync rust screen sudo systemd vscode yarn yum z"
+OMZ_PLUGINS="cp docker docker-compose encode64 extract git golang history man node npm pip pm2 python redis-cli rsync rust screen sudo systemd yarn z"
 
 
 #################### Variables ####################
@@ -74,7 +74,7 @@ function check_package_manager() {
     PACKAGE_MANAGER=""
 
     command -v yum > /dev/null 2>&1 && PACKAGE_MANAGER="YUM"
-    command -v apt-get > /dev/null 2>&1 && PACKAGE_MANAGER="APT"
+    command -v apt > /dev/null 2>&1 && PACKAGE_MANAGER="APT"
 
     if [[ -z "${PACKAGE_MANAGER}" ]]; then
         error "该脚本仅支持 yum, apt 包管理器"
@@ -94,14 +94,15 @@ function install_zsh() {
     case "${PACKAGE_MANAGER}" in
         YUM)
             yum -y install zsh
-            if [[ $? -ne 0 ]]; then
+            if [[ "$?" != "0" ]]; then
                 error "Zsh 安装失败"
                 exit 1
             fi
             ;;
         APT)
-            apt-get -y install zsh
-            if [[ $? -ne 0 ]]; then
+            apt -y update
+            apt -y install zsh
+            if [[ "$?" != "0" ]]; then
                 error "Zsh 安装失败"
                 exit 1
             fi
@@ -118,7 +119,7 @@ function install_main() {
 
     # install
     wget -c -t3 -T60 -qO- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | bash
-    if [[ $? -ne 0 ]]; then
+    if [[ "$?" != "0" ]]; then
         error "安装 Oh My Zsh 失败"
         exit 1
     fi
@@ -152,7 +153,7 @@ function configure_main() {
 
         # Fix numeric keypad
         # https://github.com/robbyrussell/oh-my-zsh/issues/2654
-        if [[ "$(grep -c 'Fix numeric keypad' "${OMZ_CONFIG_FILE}")" -eq 0 ]]; then
+        if [[ "$(grep -c 'Fix numeric keypad' "${OMZ_CONFIG_FILE}")" == "0" ]]; then
             cat >> "${OMZ_CONFIG_FILE}" << EOF
 
 # Fix numeric keypad
@@ -177,7 +178,7 @@ EOF
 
         # Fix Home / End key
         # https://github.com/robbyrussell/oh-my-zsh/issues/3061
-        if [[ "$(grep -c '# Fix Home / End key' "${OMZ_CONFIG_FILE}")" -eq 0 ]]; then
+        if [[ "$(grep -c '# Fix Home / End key' "${OMZ_CONFIG_FILE}")" == "0" ]]; then
             cat >> "${OMZ_CONFIG_FILE}" << EOF
 
 # Fix Home / End key
@@ -193,7 +194,7 @@ EOF
 # install
 function install() {
     check_installed
-    if [[ $? -eq 1 ]]; then
+    if [[ "$?" == "1" ]]; then
         color yellow "发现已安装的 Oh My Zsh，你可以："
         color yellow "1. 使用 omz update 升级版本"
         color yellow "2. 使用 uninstall_oh_my_zsh 卸载后重新使用 install 安装"
@@ -221,7 +222,7 @@ function install() {
     fi
 
     if [[ "${READ_OMZ_INSTALL^^}" == "Y" ]]; then
-        if [[ "${EUID}" -eq 0 ]]; then
+        if [[ "${EUID}" == "0" ]]; then
             install_zsh
         fi
         install_main
@@ -234,7 +235,7 @@ function install() {
 # configure
 function configure() {
     check_installed
-    if [[ $? -eq 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Oh My Zsh，你可以使用 install 安装"
         exit 1
     fi
@@ -269,7 +270,7 @@ function configure() {
 # update
 function update() {
     check_installed
-    if [[ $? -eq 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Oh My Zsh，你可以使用 install 安装"
         exit 1
     fi
@@ -280,7 +281,7 @@ function update() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? -eq 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Oh My Zsh"
         exit 1
     fi
@@ -291,8 +292,8 @@ function uninstall() {
 # main
 function main() {
     check_zsh_installed
-    if [[ $? -eq 0 ]]; then
-        if [[ "${EUID}" -ne 0 ]]; then
+    if [[ "$?" == "0" ]]; then
+        if [[ "${EUID}" != "0" ]]; then
             error "该脚本必须以 root 权限运行安装 Zsh"
             exit 1
         fi
@@ -303,13 +304,13 @@ function main() {
 
 # dep
 function dep() {
-    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/functions.sh"
 
     for ARGS_ITEM in $*;
     do
         if [[ "${ARGS_ITEM}" == "--china" ]]; then
             CHINA_MIRROR="TRUE"
-            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/debian/functions.sh"
         fi
     done
 
@@ -362,3 +363,7 @@ dep $*
 #
 # - 修改插件
 # - 优化脚本
+#
+# v3.0.0
+#
+# - 修改为 Debian 版

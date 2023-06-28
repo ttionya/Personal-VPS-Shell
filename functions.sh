@@ -2,7 +2,7 @@
 #
 # Common functions and variables check
 #
-# Version: 2.2.0
+# Version: 3.0.0
 # Author: ttionya
 
 
@@ -25,8 +25,8 @@ do
             ASSUME_YES="TRUE"
             ;;
         *)
-            COMMAND_COUNT=$(echo "${ARGS_ITEM}" | grep -coE "^[0-9a-zA-Z]")
-            OPTIONS_COUNT=$(echo "${ARGS_ITEM}" | grep -coE "^-")
+            COMMAND_COUNT="$(echo "${ARGS_ITEM}" | grep -coE "^[0-9a-zA-Z]")"
+            OPTIONS_COUNT="$(echo "${ARGS_ITEM}" | grep -coE "^-")"
             if [[ "${COMMAND_COUNT}" == "1" ]]; then
                 if [[ -n "${COMMAND}" ]]; then
                     echo "参数错误"
@@ -34,11 +34,11 @@ do
                 fi
                 COMMAND="${ARGS_ITEM^^}"
             elif [[ "${OPTIONS_COUNT}" == "1" ]]; then
-                KEY=$(echo "${ARGS_ITEM%%=*}" | sed -r 's@-*(.*)@\1@' | sed 's@-@_@') # 左侧内容
+                KEY="$(echo "${ARGS_ITEM%%=*}" | sed -r 's@-*(.*)@\1@' | sed 's@-@_@')" # 左侧内容
                 VALUE="${ARGS_ITEM#*=}" # 右侧内容
 
                 # 支持 (-)+option (-)+option=value 等各种松散方案
-                EQUAL_COUNT=$(echo "${ARGS_ITEM}" | grep -c "=")
+                EQUAL_COUNT="$(echo "${ARGS_ITEM}" | grep -c "=")"
                 if [[ "${EQUAL_COUNT}" != "1" ]]; then
                     VALUE="TRUE"
                 fi
@@ -63,13 +63,9 @@ do
 done
 
 if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-    URL_PVS_DEVEL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/lamp_devel.sh"
-    URL_PVS_ELREPO="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/repo_elrepo.sh"
-    URL_PVS_EPEL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/repo_epel.sh"
+    URL_PVS_DEVEL=""
 else
-    URL_PVS_DEVEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/lamp_devel.sh"
-    URL_PVS_ELREPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_elrepo.sh"
-    URL_PVS_EPEL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_epel.sh"
+    URL_PVS_DEVEL=""
 fi
 
 
@@ -78,9 +74,9 @@ fi
 # Get correct timezone.
 ########################################
 TIMEZONE="${OPTION_TIMEZONE:-"${TIMEZONE}"}"
-TIMEZONE_MATCHED_COUNT=$(ls "/usr/share/zoneinfo/${TIMEZONE}" 2> /dev/null | wc -l)
-if [[ "${TIMEZONE_MATCHED_COUNT}" -ne 1 ]]; then
-    TIMEZONE=$(timedatectl | grep "Time zone" | sed 's@Time zone:@@' | awk -F' ' '{ print $1 }')
+TIMEZONE_MATCHED_COUNT="$(ls "/usr/share/zoneinfo/${TIMEZONE}" 2> /dev/null | wc -l)"
+if [[ "${TIMEZONE_MATCHED_COUNT}" != "1" ]]; then
+    TIMEZONE="$(cat /etc/timezone)"
 fi
 unset TIMEZONE_MATCHED_COUNT
 
@@ -95,7 +91,7 @@ unset TIMEZONE_MATCHED_COUNT
 #     colorful message
 ########################################
 function color() {
-    case $1 in
+    case "$1" in
         red)     echo -e "\033[31m$2\033[0m" ;;
         green)   echo -e "\033[32m$2\033[0m" ;;
         yellow)  echo -e "\033[33m$2\033[0m" ;;
@@ -167,7 +163,7 @@ function check_root() {
 ########################################
 # Check OS version.
 # Arguments:
-#     version (7, 8)
+#     version
 # Returns:
 #     None / exit
 ########################################
@@ -175,8 +171,8 @@ function check_os_version() {
     local SYSTEM_VERSION
     local INVALID_ARRAY=()
 
-    if [[ -s /etc/redhat-release ]]; then
-        SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/redhat-release)"
+    if [[ -s /etc/debian_version ]]; then
+        SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/debian_version)"
     else
         SYSTEM_VERSION="$(grep -oE "[0-9.]+" /etc/issue)"
     fi
@@ -189,8 +185,8 @@ function check_os_version() {
         fi
     done
 
-    if [[ "${#*}" -eq "${#INVALID_ARRAY[*]}" ]]; then
-        error "该脚本仅支持 CentOS ${INVALID_ARRAY[*]} 版本"
+    if [[ "${#*}" == "${#INVALID_ARRAY[*]}" ]]; then
+        error "该脚本仅支持 Debian ${INVALID_ARRAY[*]} 版本"
         exit 1
     fi
 }
@@ -211,7 +207,7 @@ fi
 #     None
 ########################################
 function get_cpu_number() {
-    CPU_NUMBER=$(grep -c "processor" /proc/cpuinfo)
+    CPU_NUMBER="$(grep -c "processor" /proc/cpuinfo)"
 }
 
 
@@ -258,3 +254,7 @@ fi
 # v2.2.0
 #
 # - 暴露系统主要版本全局变量
+#
+# v3.0.0
+#
+# - 修改为 Debian 版

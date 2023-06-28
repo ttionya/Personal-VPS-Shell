@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 2.2.0
+# Version: 3.0.0
 # Author: ttionya
 #
 # Usage:
@@ -16,7 +16,7 @@ TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
 # Git 版本号
-GIT_VERSION="2.37.3"
+GIT_VERSION="2.41.0"
 # Git 安装路径
 INSTALL_GIT_PATH="/usr/local/git"
 
@@ -53,8 +53,9 @@ function install_dependencies() {
     color blue "========================================"
     info "依赖安装中..."
 
-    yum -y install autoconf curl-devel diffutils expat-devel gcc gcc-c++ gettext make wget zlib-devel
-    if [[ $? -ne 0 ]]; then
+    apt -y update
+    apt -y install autoconf curl build-essential gettext libcurl4-gnutls-dev libexpat-dev libz-dev wget
+    if [[ "$?" != "0" ]]; then
         error "依赖安装失败"
         exit 1
     fi
@@ -73,7 +74,7 @@ function install_main() {
     # download
     if [[ ! -s "${GIT_SRC_FILE}" ]]; then
         wget -c -t3 -T60 "https://github.com/git/git/archive/v${GIT_VERSION}.tar.gz" -O "${GIT_SRC_FILE}"
-        if [[ $? -ne 0 ]]; then
+        if [[ "$?" != "0" ]]; then
             error "Git 下载失败"
             rm -rf "${GIT_SRC_FILE}"
             exit 1
@@ -87,20 +88,14 @@ function install_main() {
     # configure
     cd "${GIT_SRC_DIR}"
 
-	local CFLAGS=""
-	if [[ "${SYSTEM_MAJOR_VERSION}" -eq 7 ]]; then
-		# https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/5948/diffs
-		CFLAGS="-std=gnu99"
-	fi
-
     make configure
-    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=YesPlease CFLAGS="${CFLAGS}"
-    if [[ $? -ne 0 ]]; then
+    ./configure --prefix="${INSTALL_GIT_PATH}" NO_TCLTK=YesPlease
+    if [[ "$?" != "0" ]]; then
         error "Git 配置失败"
         exit 1
     fi
     make all -j "${CPU_NUMBER}"
-    if [[ $? -ne 0 ]]; then
+    if [[ "$?" != "0" ]]; then
         error "Git 编译失败"
         make clean
         exit 1
@@ -109,7 +104,7 @@ function install_main() {
     if [[ "${COMMAND}" == "INSTALL" ]]; then # INSTALL
         # install
         make install
-        if [[ $? -ne 0 ]]; then
+        if [[ "$?" != "0" ]]; then
             error "Git 安装失败"
             rm -rf "${INSTALL_GIT_PATH}"
             exit 1
@@ -121,7 +116,7 @@ function install_main() {
 
         # install
         make install
-        if [[ $? -ne 0 ]]; then
+        if [[ "$?" != "0" ]]; then
             error "Git 安装失败"
             rm -rf "${INSTALL_GIT_PATH}"
             mv "${GIT_BAK}" "${INSTALL_GIT_PATH}"
@@ -152,7 +147,7 @@ function uninstall_main() {
 # install
 function install() {
     check_installed
-    if [[ $? -eq 1 ]]; then
+    if [[ "$?" == "1" ]]; then
         color yellow "发现已安装的 Git，你可以："
         color yellow "1. 使用 update 升级版本"
         color yellow "2. 使用 uninstall 卸载后重新使用 install 安装"
@@ -188,7 +183,7 @@ function install() {
 # update
 function update() {
     check_installed
-    if [[ $? -eq 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Git，你可以使用 install 安装"
         exit 1
     fi
@@ -222,7 +217,7 @@ function update() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? -eq 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Git"
         exit 1
     fi
@@ -255,20 +250,20 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 7 8 9
+    check_os_version 11 12
 
     get_cpu_number
 }
 
 # dep
 function dep() {
-    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/functions.sh"
 
     for ARGS_ITEM in $*;
     do
         if [[ "${ARGS_ITEM}" == "--china" ]]; then
             CHINA_MIRROR="TRUE"
-            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/debian/functions.sh"
         fi
     done
 
@@ -316,3 +311,8 @@ dep $*
 # - 更新 Git 安装版本
 # - 修复 CentOS 7 安装报错问题
 # - 支持 CentOS 9
+#
+# v3.0.0
+#
+# - 更新 Git 安装版本
+# - 修改为 Debian 版

@@ -2,7 +2,7 @@
 #
 # Docker CE repository
 #
-# Version: 1.0.0
+# Version: 2.0.0
 # Author: ttionya
 #
 # Usage:
@@ -18,7 +18,8 @@ CHINA_MIRROR="FALSE"
 
 
 #################### Variables ####################
-REPO_CONFIG_FILE="/etc/yum.repos.d/docker-ce.repo"
+REPO_CONFIG_FILE="/etc/apt/sources.list.d/docker.list"
+REPO_GPG_FILE="/etc/apt/keyrings/docker.gpg"
 
 
 #################### Function ####################
@@ -28,8 +29,7 @@ REPO_CONFIG_FILE="/etc/yum.repos.d/docker-ce.repo"
 #     None
 ########################################
 function check_installed() {
-    local REPO_INSTALLED_COUNT=$(yum repolist -q | grep -c "docker-ce-stable")
-    if [[ "${REPO_INSTALLED_COUNT}" != "0" ]]; then
+    if [[ -f "${REPO_CONFIG_FILE}" ]]; then
         REPO_INSTALLED="TRUE"
         return 1
     else
@@ -46,8 +46,9 @@ function install_dependencies() {
     color blue "========================================"
     info "依赖安装中..."
 
-    yum -y install yum-utils
-    if [[ $? != 0 ]]; then
+    apt -y update
+    apt -y install ca-certificates curl gnupg
+    if [[ "$?" != "0" ]]; then
         error "依赖安装失败"
         exit 1
     fi
@@ -60,11 +61,19 @@ function install_main() {
     color blue "========================================"
     info "安装 Docker CE repository 中..."
 
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    if [[ $? != 0 ]]; then
+    mkdir -p "$(dirname "${REPO_GPG_FILE}")"
+    rm -rf "${REPO_GPG_FILE}"
+
+    # download GPG
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o "${REPO_GPG_FILE}"
+    if [[ "$?" != "0" ]]; then
         error "安装 Docker CE repository 失败"
         exit 1
     fi
+    chmod a+r "${REPO_GPG_FILE}"
+
+    # configure
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=${REPO_GPG_FILE}] https://download.docker.com/linux/debian $(. /etc/os-release && echo "${VERSION_CODENAME}") stable" > "${REPO_CONFIG_FILE}"
 
     success "安装 Docker CE repository 成功"
 }
@@ -75,8 +84,7 @@ function configure_main() {
     info "配置 Docker CE repository 中..."
 
     if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        sed -i 's@^baseurl=.*docker.com/\(.*\)@baseurl=https://mirrors.tuna.tsinghua.edu.cn/docker-ce/\1@' "${REPO_CONFIG_FILE}"
-        sed -i 's@^gpgkey=.*docker.com/\(.*\)@gpgkey=https://mirrors.tuna.tsinghua.edu.cn/docker-ce/\1@' "${REPO_CONFIG_FILE}"
+        sed -i 's@^deb \(.*\)https://download.docker.com/linux/debian\(.*\)@deb \1https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/debian\2@' "${REPO_CONFIG_FILE}"
 
         success "已设置清华大学源作为 Docker CE repository 镜像源"
     fi
@@ -89,9 +97,9 @@ function uninstall_main() {
     color blue "========================================"
     info "卸载 Docker CE repository 中..."
 
-    rm -rf "${REPO_CONFIG_FILE}"
+    rm -rf "${REPO_CONFIG_FILE}" "${REPO_GPG_FILE}"
 
-    yum clean all
+    apt -y update
 
     success "卸载 Docker CE repository 完成"
 }
@@ -104,13 +112,13 @@ function install() {
     local INSTALL_TEXT="安装"
 
     if [[ "${REPO_INSTALLED}" == "TRUE" ]]; then
-        INSTALL_TEXT="重新安装"
-
         # 只允许安装
         if [[ "${OPTION_INSTALL_ONLY}" == "TRUE" ]]; then
-            warn "检测到已安装 Docker CE repository，跳过${INSTALL_TEXT}"
+            warn "检测到已安装 Docker CE repository，跳过"
             exit 0
         fi
+
+        INSTALL_TEXT="重新安装"
     fi
 
     clear
@@ -144,7 +152,7 @@ function install() {
 # configure
 function configure() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Docker CE repository，你可以使用 install 安装"
         exit 1
     fi
@@ -168,7 +176,6 @@ function configure() {
     fi
 
     if [[ "${READ_REPO_CONFIGURE^^}" == "Y" ]]; then
-        install_dependencies
         configure_main
     else
         info "已取消 Docker CE repository 配置"
@@ -178,7 +185,7 @@ function configure() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Docker CE repository"
         exit 1
     fi
@@ -211,18 +218,18 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 7 8
+    check_os_version 11 12
 }
 
 # dep
 function dep() {
-    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/functions.sh"
 
     for ARGS_ITEM in $*;
     do
         if [[ "${ARGS_ITEM}" == "--china" ]]; then
             CHINA_MIRROR="TRUE"
-            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/debian/functions.sh"
         fi
     done
 
@@ -242,3 +249,7 @@ dep $*
 # v1.0.0
 #
 # - 拆分安装 Docker CE repository 功能
+#
+# v2.0.0
+#
+# - 修改为 Debian 版

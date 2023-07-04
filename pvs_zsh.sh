@@ -2,7 +2,7 @@
 #
 # Oh My Zsh
 #
-# Version: 3.0.0
+# Version: 3.0.1
 # Author: ttionya
 #
 # Usage:
@@ -100,8 +100,8 @@ function install_zsh() {
             fi
             ;;
         APT)
-            apt -y update
-            apt -y install zsh
+            apt-get -y update
+            apt-get -y install zsh
             if [[ "$?" != "0" ]]; then
                 error "Zsh 安装失败"
                 exit 1
@@ -367,3 +367,7 @@ dep $*
 # v3.0.0
 #
 # - 修改为 Debian 版
+#
+# v3.0.1
+#
+# - 使用 apt-get 替代 apt

@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 3.0.0
+# Version: 3.0.1
 # Author: ttionya
 #
 # Usage:
@@ -53,8 +53,8 @@ function install_dependencies() {
     color blue "========================================"
     info "依赖安装中..."
 
-    apt -y update
-    apt -y install autoconf curl build-essential gettext libcurl4-gnutls-dev libexpat-dev libz-dev wget
+    apt-get -y update
+    apt-get -y install autoconf curl build-essential gettext libcurl4-gnutls-dev libexpat-dev libz-dev wget
     if [[ "$?" != "0" ]]; then
         error "依赖安装失败"
         exit 1
@@ -316,3 +316,7 @@ dep $*
 #
 # - 更新 Git 安装版本
 # - 修改为 Debian 版
+#
+# v3.0.1
+#
+# - 使用 apt-get 替代 apt

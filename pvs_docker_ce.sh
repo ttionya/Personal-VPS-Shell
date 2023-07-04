@@ -2,14 +2,13 @@
 #
 # Docker (Community Edition) and Docker Compose with Docker CE repository
 #
-# Version: 3.0.0
+# Version: 4.0.0
 # Author: ttionya
 #
 # Usage:
 #     sh pvs_docker_ce.sh [ install | configure | update | uninstall ] [ [options] ]
 #
-# https://docs.docker.com/install/linux/docker-ce/centos/
-# https://github.com/docker/compose/releases
+# https://docs.docker.com/engine/install/debian/
 
 
 #################### Custom Setting ####################
@@ -18,14 +17,12 @@ DEFAULT_COMMAND="INSTALL"
 TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
-# Docker Compose 版本号
-DOCKER_COMPOSE_VERSION="1.29.2"
 
 
 #################### Variables ####################
+REPO_CONFIG_FILE="/etc/apt/sources.list.d/docker.list"
 DOCKER_CONFIG_DIR="/etc/docker"
 DOCKER_CONFIG_FILE="${DOCKER_CONFIG_DIR}/daemon.json"
-DOCKER_COMPOSE_BIN="/usr/local/bin/docker-compose"
 
 
 #################### Function ####################
@@ -35,8 +32,7 @@ DOCKER_COMPOSE_BIN="/usr/local/bin/docker-compose"
 #     None
 ########################################
 function check_installed() {
-    rpm -q "docker-ce" --quiet
-    if [[ $? == 0 ]]; then
+    if dpkg -s "docker-ce" > /dev/null 2>&1; then
         return 1
     else
         return 0
@@ -49,24 +45,9 @@ function check_installed() {
 #     None
 ########################################
 function check_repo_installed() {
-    local REPO_INSTALLED_COUNT=$(yum repolist -q | grep -c "docker-ce-stable")
-    if [[ "${REPO_INSTALLED_COUNT}" == "0" ]]; then
-        error "未发现必要依赖 Docker CE repository"
+    if [[ ! -f "${REPO_CONFIG_FILE}" ]]; then
+        error "未发现 Docker CE repository"
         exit 1
-    fi
-}
-
-########################################
-# Check that Docker Compose is installed.
-# Arguments:
-#     None
-########################################
-function check_docker_compose_installed() {
-    if command -v "${DOCKER_COMPOSE_BIN}" > /dev/null 2>&1; then
-        DOCKER_COMPOSE_VERSION_INSTALLED="$("${DOCKER_COMPOSE_BIN}" version --short)"
-        return 1
-    else
-        return 0
     fi
 }
 
@@ -76,12 +57,12 @@ function check_docker_compose_installed() {
 #     None
 ########################################
 function install_repo_repository() {
-    local URL_PVS_REPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_docker_ce.sh"
+    local URL_PVS_REPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/repo_docker_ce.sh"
     local CHINA_ARGUMENTS=""
     local Y_ARGUMENTS=""
 
     if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        URL_PVS_REPO="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/repo_docker_ce.sh"
+        URL_PVS_REPO="https://gitee.com/ttionya/Personal-VPS-Shell/raw/debian/repo_docker_ce.sh"
         CHINA_ARGUMENTS="--china"
     fi
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -89,51 +70,10 @@ function install_repo_repository() {
     fi
 
     bash <(curl -m 10 --retry 5 "${URL_PVS_REPO}") --install-only --timezone="${TIMEZONE}" "${CHINA_ARGUMENTS}" "${Y_ARGUMENTS}"
-    if [[ $? != 0 ]]; then
+    if [[ "$?" != "0" ]]; then
         error "安装 Docker CE repository 失败"
         exit 1
     fi
-}
-
-########################################
-# Install Docker Compose.
-# Arguments:
-#     None
-########################################
-function install_docker_compose() {
-    color blue "========================================"
-    info "安装 Docker Compose 中..."
-
-    local URL_DOCKER_COMPOSE="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
-
-    if [[ "${CHINA_MIRROR}" == "TRUE" ]]; then
-        URL_DOCKER_COMPOSE="https://get.daocloud.io/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"
-    fi
-
-    wget -c -t3 -T60 "${URL_DOCKER_COMPOSE}" -O ${DOCKER_COMPOSE_BIN}
-    if [[ $? != 0 ]]; then
-        error "Docker Compose 下载失败"
-        rm -rf "${DOCKER_COMPOSE_BIN}"
-        exit 1
-    fi
-
-    chmod +x "${DOCKER_COMPOSE_BIN}"
-
-    success "安装 Docker Compose 成功"
-}
-
-########################################
-# Uninstall Docker Compose.
-# Arguments:
-#     None
-########################################
-function uninstall_docker_compose() {
-    color blue "========================================"
-    info "卸载 Docker Compose 中..."
-
-    rm -rf "${DOCKER_COMPOSE_BIN}"
-
-    success "卸载 Docker Compose 完成"
 }
 
 ########################################
@@ -145,8 +85,8 @@ function uninstall_old_docker() {
     color blue "========================================"
     info "卸载旧 Docker 中..."
 
-    yum -y remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
-    if [[ $? != 0 ]]; then
+    apt-get -y purge containerd docker.io docker-compose docker-doc podman-docker runc
+    if [[ "$?" != "0" ]]; then
         error "卸载旧 Docker 失败"
         exit 1
     fi
@@ -159,11 +99,9 @@ function install_main() {
     color blue "========================================"
     info "安装 Docker CE 中..."
 
-    yum clean all
-    yum makecache
-
-    yum --enablerepo=docker-ce-stable -y install docker-ce docker-ce-cli containerd.io
-    if [[ $? != 0 ]]; then
+    apt-get -y update
+    apt-get -y install containerd.io docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
+    if [[ "$?" != "0" ]]; then
         error "安装 Docker CE 失败"
         exit 1
     fi
@@ -176,6 +114,7 @@ function configure_main() {
     color blue "========================================"
     info "配置 Docker CE 中..."
 
+    # https://github.com/docker-practice/docker-registry-cn-mirror-test/actions
     local REGISTRY_MIRRORS='"registry-mirrors": [ "https://hub-mirror.c.163.com", "https://mirror.baidubce.com" ]'
 
     mkdir -p "${DOCKER_CONFIG_DIR}"
@@ -185,7 +124,7 @@ function configure_main() {
             warn "${DOCKER_CONFIG_FILE} 已存在，跳过镜像源设置"
             warn "请手动添加 ${REGISTRY_MIRRORS}"
         else
-            echo "{ ${REGISTRY_MIRRORS} }" > ${DOCKER_CONFIG_FILE}
+            echo "{ ${REGISTRY_MIRRORS} }" > "${DOCKER_CONFIG_FILE}"
             success "已设置网易云和百度源作为 Docker CE 镜像源"
         fi
     fi
@@ -206,8 +145,8 @@ function uninstall_main() {
     local DOCKER_CONTAINERS="$(docker container ls --format '{{.Image}}')"
     local DOCKER_VOLUMES="$(docker volume ls --format '{{.Name}}')"
 
-    yum -y remove docker-ce docker-ce-cli containerd.io
-    if [[ $? != 0 ]]; then
+    apt-get -y purge containerd.io docker-ce docker-ce-cli docker-buildx-plugin docker-compose-plugin
+    if [[ "$?" != "0" ]]; then
         error "卸载 Docker CE 失败"
         exit 1
     fi
@@ -235,7 +174,7 @@ function uninstall_main() {
 # install
 function install() {
     check_installed
-    if [[ $? == 1 ]]; then
+    if [[ "$?" == "1" ]]; then
         color yellow "发现已安装的 Docker CE，你可以："
         color yellow "1. 使用 update 升级版本"
         color yellow "2. 使用 uninstall 卸载后重新使用 install 安装"
@@ -253,8 +192,7 @@ function install() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将安装 Docker CE"
-    color yellow "将安装 Docker Compose ${DOCKER_COMPOSE_VERSION}"
+    color yellow "将安装 Docker CE 和 Docker Compose"
     color none ""
     color yellow "确认安装？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -268,7 +206,6 @@ function install() {
         uninstall_old_docker
         install_main
         configure_main
-        install_docker_compose
     else
         info "已取消 Docker CE 安装"
     fi
@@ -277,7 +214,7 @@ function install() {
 # configure
 function configure() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Docker CE，你可以使用 install 安装"
         exit 1
     fi
@@ -310,7 +247,7 @@ function configure() {
 # update
 function update() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Docker CE，你可以使用 install 安装"
         exit 1
     fi
@@ -319,7 +256,6 @@ function update() {
     check_repo_installed
 
     local READ_DOCKER_CE_UPDATE
-    local INSTALL_DOCKER_COMPOSE="TRUE"
 
     clear
     color blue "##########################################################"
@@ -327,15 +263,7 @@ function update() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将升级 Docker CE"
-    if [[ "${DOCKER_COMPOSE_VERSION}" == "${DOCKER_COMPOSE_VERSION_INSTALLED}" ]]; then
-        color yellow "已安装最新版 Docker Compose"
-        INSTALL_DOCKER_COMPOSE="FALSE"
-    elif [[ -n "${DOCKER_COMPOSE_VERSION_INSTALLED}" ]]; then
-        color yellow "Docker Compose ${DOCKER_COMPOSE_VERSION_INSTALLED} -> Docker Compose ${DOCKER_COMPOSE_VERSION}"
-    else
-        color yellow "将安装 Docker Compose ${DOCKER_COMPOSE_VERSION}"
-    fi
+    color yellow "将升级 Docker CE 和 Docker Compose"
     color none ""
     color yellow "确认升级？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -347,9 +275,6 @@ function update() {
 
     if [[ "${READ_DOCKER_CE_UPDATE^^}" == "Y" ]]; then
         install_main
-        if [[ "${INSTALL_DOCKER_COMPOSE}" == "TRUE" ]]; then
-            install_docker_compose
-        fi
     else
         info "已取消 Docker CE 升级"
     fi
@@ -358,7 +283,7 @@ function update() {
 # uninstall
 function uninstall() {
     check_installed
-    if [[ $? == 0 ]]; then
+    if [[ "$?" == "0" ]]; then
         color yellow "未发现已安装的 Docker CE"
         exit 1
     fi
@@ -371,10 +296,7 @@ function uninstall() {
     color blue "# Author: ttionya"
     color blue "##########################################################"
     color none ""
-    color yellow "将卸载 Docker CE"
-    if [[ -n "${DOCKER_COMPOSE_VERSION_INSTALLED}" ]]; then
-        color yellow "将卸载 Docker Compose ${DOCKER_COMPOSE_VERSION_INSTALLED}"
-    fi
+    color yellow "将卸载 Docker CE 和 Docker Compose"
     color none ""
     color yellow "确认卸载？ (y/N)"
     if [[ "${ASSUME_YES}" == "TRUE" ]]; then
@@ -386,7 +308,6 @@ function uninstall() {
 
     if [[ "${READ_DOCKER_CE_UNINSTALL^^}" == "Y" ]]; then
         uninstall_main
-        uninstall_docker_compose
     else
         info "已取消 Docker CE 卸载"
     fi
@@ -395,20 +316,18 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 7 8
-
-    check_docker_compose_installed
+    check_os_version 11 12
 }
 
 # dep
 function dep() {
-    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/master/functions.sh"
+    local FUNCTION_URL="https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/functions.sh"
 
     for ARGS_ITEM in $*;
     do
         if [[ "${ARGS_ITEM}" == "--china" ]]; then
             CHINA_MIRROR="TRUE"
-            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/master/functions.sh"
+            FUNCTION_URL="https://gitee.com/ttionya/Personal-VPS-Shell/raw/debian/functions.sh"
         fi
     done
 
@@ -465,3 +384,8 @@ dep $*
 #
 # - 重构脚本
 # - 更新 Docker Compose 版本
+#
+# v4.0.0
+#
+# - 修改为 Debian 版
+# - 修改 Docker Compose 安装方式

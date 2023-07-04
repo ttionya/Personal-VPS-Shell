@@ -2,7 +2,7 @@
 #
 # Docker CE repository
 #
-# Version: 2.0.0
+# Version: 2.0.1
 # Author: ttionya
 #
 # Usage:
@@ -46,8 +46,8 @@ function install_dependencies() {
     color blue "========================================"
     info "依赖安装中..."
 
-    apt -y update
-    apt -y install ca-certificates curl gnupg
+    apt-get -y update
+    apt-get -y install ca-certificates curl gnupg
     if [[ "$?" != "0" ]]; then
         error "依赖安装失败"
         exit 1
@@ -253,3 +253,7 @@ dep $*
 # v2.0.0
 #
 # - 修改为 Debian 版
+#
+# v2.0.1
+#
+# - 使用 apt-get 替代 apt

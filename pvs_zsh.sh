@@ -2,7 +2,7 @@
 #
 # Oh My Zsh
 #
-# Version: 3.0.1
+# Version: 3.0.2
 # Author: ttionya
 #
 # Usage:
@@ -18,7 +18,7 @@ CHINA_MIRROR="FALSE"
 # Zsh Theme (https://github.com/ohmyzsh/ohmyzsh/wiki/Themes)
 OMZ_THEME="ys"
 # Zsh Plugins (https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins)
-OMZ_PLUGINS="cp docker docker-compose encode64 extract git golang history man node npm pip pm2 python redis-cli rsync rust screen sudo systemd yarn z"
+OMZ_PLUGINS="cp docker docker-compose encode64 extract git history man node npm pip pm2 python redis-cli rsync screen sudo systemd ufw yarn z"
 
 
 #################### Variables ####################
@@ -371,3 +371,7 @@ dep $*
 # v3.0.1
 #
 # - 使用 apt-get 替代 apt
+#
+# v3.0.2
+#
+# - 修改启用插件

@@ -2,7 +2,7 @@
 #
 # Oh My Zsh
 #
-# Version: 3.0.2
+# Version: 3.0.3
 # Author: ttionya
 #
 # Usage:
@@ -187,6 +187,9 @@ bindkey "\033[4~" end-of-line
 EOF
         fi
     fi
+
+    # Change default shell
+    chsh -s "$(which zsh)"
 
     success "配置 Oh My Zsh 完成"
 }
@@ -375,3 +378,7 @@ dep $*
 # v3.0.2
 #
 # - 修改启用插件
+#
+# v3.0.3
+#
+# - 修改默认 shell

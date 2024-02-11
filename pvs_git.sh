@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 3.0.1
+# Version: 3.0.2
 # Author: ttionya
 #
 # Usage:
@@ -16,7 +16,7 @@ TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
 # Git 版本号
-GIT_VERSION="2.41.0"
+GIT_VERSION="2.43.1"
 # Git 安装路径
 INSTALL_GIT_PATH="/usr/local/git"
 
@@ -320,3 +320,7 @@ dep $*
 # v3.0.1
 #
 # - 使用 apt-get 替代 apt
+#
+# v3.0.2
+#
+# - 更新 Git 安装版本

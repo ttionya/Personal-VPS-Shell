@@ -13,7 +13,7 @@
 
 > 版本控制软件
 
-#### [pvs_zsh.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/pvs_zsh.sh)
+#### [pvs_omz.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/pvs_omz.sh)
 
 > 代替 Bash
 

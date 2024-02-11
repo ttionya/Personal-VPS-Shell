@@ -2,7 +2,7 @@
 #
 # Oh My Zsh
 #
-# Version: 3.0.3
+# Version: 3.1.0
 # Author: ttionya
 #
 # Usage:
@@ -382,3 +382,7 @@ dep $*
 # v3.0.3
 #
 # - 修改默认 shell
+#
+# v3.1.0
+#
+# - 修改脚本名称

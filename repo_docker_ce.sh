@@ -2,7 +2,7 @@
 #
 # Docker CE repository
 #
-# Version: 2.0.1
+# Version: 2.0.2
 # Author: ttionya
 #
 # Usage:
@@ -99,7 +99,7 @@ function uninstall_main() {
 
     rm -rf "${REPO_CONFIG_FILE}" "${REPO_GPG_FILE}"
 
-    apt -y update
+    apt-get -y update
 
     success "卸载 Docker CE repository 完成"
 }
@@ -255,5 +255,9 @@ dep $*
 # - 修改为 Debian 版
 #
 # v2.0.1
+#
+# - 使用 apt-get 替代 apt
+#
+# v2.0.2
 #
 # - 使用 apt-get 替代 apt

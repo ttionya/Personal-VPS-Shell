@@ -30,3 +30,5 @@
 #### [repo_docker_ce.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/repo_docker_ce.sh)
 
 - Docker CE 清华大学源（China）
+
+#### [repo_mysql84.sh](https://raw.githubusercontent.com/ttionya/Personal-VPS-Shell/debian/repo_mysql84.sh)

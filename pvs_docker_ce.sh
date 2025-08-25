@@ -2,7 +2,7 @@
 #
 # Docker (Community Edition) and Docker Compose with Docker CE repository
 #
-# Version: 4.0.0
+# Version: 4.0.1
 # Author: ttionya
 #
 # Usage:
@@ -316,7 +316,7 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 11 12
+    check_os_version 11 12 13
 }
 
 # dep
@@ -389,3 +389,7 @@ dep $*
 #
 # - 修改为 Debian 版
 # - 修改 Docker Compose 安装方式
+#
+# v4.0.1
+#
+# - 支持 Debian 13

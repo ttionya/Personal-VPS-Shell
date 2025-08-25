@@ -16,7 +16,7 @@ TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
 # Git 版本号
-GIT_VERSION="2.46.0"
+GIT_VERSION="2.51.0"
 # Git 安装路径
 INSTALL_GIT_PATH="/usr/local/git"
 
@@ -326,5 +326,9 @@ dep $*
 # - 更新 Git 安装版本
 #
 # v3.0.3
+#
+# - 更新 Git 安装版本
+#
+# v3.0.4
 #
 # - 更新 Git 安装版本

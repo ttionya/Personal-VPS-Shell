@@ -2,7 +2,7 @@
 #
 # Docker CE repository
 #
-# Version: 2.0.2
+# Version: 2.0.3
 # Author: ttionya
 #
 # Usage:
@@ -218,7 +218,7 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 11 12
+    check_os_version 11 12 13
 }
 
 # dep
@@ -261,3 +261,7 @@ dep $*
 # v2.0.2
 #
 # - 使用 apt-get 替代 apt
+#
+# v2.0.3
+#
+# - 支持 Debian 13

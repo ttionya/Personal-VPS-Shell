@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 3.0.3
+# Version: 3.0.5
 # Author: ttionya
 #
 # Usage:
@@ -250,7 +250,7 @@ function uninstall() {
 # main
 function main() {
     check_root
-    check_os_version 11 12
+    check_os_version 11 12 13
 
     get_cpu_number
 }
@@ -332,3 +332,7 @@ dep $*
 # v3.0.4
 #
 # - 更新 Git 安装版本
+#
+# v3.0.5
+#
+# - 支持 Debian 13

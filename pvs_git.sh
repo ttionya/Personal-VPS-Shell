@@ -2,7 +2,7 @@
 #
 # Git
 #
-# Version: 3.0.5
+# Version: 3.0.6
 # Author: ttionya
 #
 # Usage:
@@ -16,7 +16,7 @@ TIMEZONE=""
 # 中国镜像
 CHINA_MIRROR="FALSE"
 # Git 版本号
-GIT_VERSION="2.51.0"
+GIT_VERSION="2.54.0"
 # Git 安装路径
 INSTALL_GIT_PATH="/usr/local/git"
 
@@ -336,3 +336,7 @@ dep $*
 # v3.0.5
 #
 # - 支持 Debian 13
+#
+# v3.0.6
+#
+# - 更新 Git 安装版本
